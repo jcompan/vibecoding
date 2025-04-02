@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landing con Temporizador</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #667eea, #764ba2);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5rem;
+    }
+    #countdown {
+      font-size: 3rem;
+      margin-top: 20px;
+    }
+    .btn, .control-btn {
+      margin: 10px;
+      padding: 15px 30px;
+      background-color: #ffffff;
+      color: #764ba2;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>¡Oferta Especial por Tiempo Limitado!</h1>
+  <p>Solo tienes 2 horas para aprovechar esta oportunidad exclusiva.</p>
+  <div id="countdown">02:00:00</div>
+  <button class="btn">Accede Ahora</button>
+
+  <div class="controls">
+    <button class="control-btn" onclick="startTimer()">Play</button>
+    <button class="control-btn" onclick="pauseTimer()">Pausa</button>
+    <button class="control-btn" onclick="resetTimer()">Reiniciar</button>
+  </div>
+
+  <script>
+    let countdownEl = document.getElementById("countdown");
+    let totalTime = 2 * 60 * 60 * 1000; // 2 horas en milisegundos
+    let endTime = new Date().getTime() + totalTime;
+    let remainingTime = totalTime;
+    let timerInterval = null;
+    let isRunning = true;
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = endTime - now;
+
+      if (distance <= 0) {
+        clearInterval(timerInterval);
+        countdownEl.textContent = "¡Tiempo agotado!";
+        isRunning = false;
+        return;
+      }
+
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      countdownEl.textContent =
+        String(hours).padStart(2, '0') + ":" +
+        String(minutes).padStart(2, '0') + ":" +
+        String(seconds).padStart(2, '0');
+    }
+
+    function startTimer() {
+      if (!isRunning) {
+        endTime = new Date().getTime() + remainingTime;
+        timerInterval = setInterval(updateCountdown, 1000);
+        isRunning = true;
+      }
+    }
+
+    function pauseTimer() {
+      if (isRunning) {
+        clearInterval(timerInterval);
+        remainingTime = endTime - new Date().getTime();
+        isRunning = false;
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      remainingTime = totalTime;
+      endTime = new Date().getTime() + totalTime;
+      updateCountdown();
+      timerInterval = setInterval(updateCountdown, 1000);
+      isRunning = true;
+    }
+
+    timerInterval = setInterval(updateCountdown, 1000);
+  </script>
+</body>
+</html>
