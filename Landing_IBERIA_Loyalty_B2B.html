@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador OnBusiness Iberia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --iberia-red: #c8102e;
+      --iberia-dark-red: #a50d23;
+      --iberia-yellow: #ffcc00;
+      --bg-light: #f9f9f9;
+      --text-color: #2b2b2b;
+      --card-bg: #ffffff;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      background: var(--bg-light);
+      color: var(--text-color);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--iberia-red);
+      color: white;
+      padding: 40px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: left;
+      position: relative; /* Ensure text is above airplane */
+      z-index: 1;
+    }
+
+    .logo-container {
+      margin-right: 20px;
+      flex-shrink: 0; /* Prevent logo from shrinking */
+    }
+
+    .iberia-logo {
+      max-width: 300px;
+      height: auto;
+      display: block; /* Prevents extra space below */
+    }
+
+    .header-text {
+      flex-grow: 1;
+    }
+
+    .airplane {
+    position: absolute;
+    top: 20px;
+    left: -100px; /* Start further off-screen */
+    transform: rotate(30deg);
+    font-size: 2em; /* Adjusted size */
+    color: white; /* Make it visible */
+    opacity: 0.5; /* Slightly transparent */
+    animation: flyby 20s linear infinite;
+    z-index: 0; /* Behind header content */
+    display: none; /* <-- Añade esta línea para ocultarlo */
+    }
+
+    @keyframes flyby {
+      0% { left: -100px; top: 20px; opacity: 0.5; transform: rotate(20deg) scale(0.8); }
+      50% { opacity: 0.7; }
+      100% { left: calc(100% + 100px); top: 80px; opacity: 0; transform: rotate(5deg) scale(1.2); }
+    }
+
+
+    header h1 {
+      margin: 0;
+      font-size: 2.2em; /* Slightly smaller for responsiveness */
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+
+    header p {
+      font-size: 1.1em; /* Slightly smaller */
+      margin-top: 8px;
+    }
+
+    .dashboard-stats {
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+      position: relative; /* Ensure it's above airplane */
+      z-index: 1;
+    }
+
+    .dashboard-stats p {
+      margin: 5px 0;
+      font-weight: bold;
+      font-size: 0.95em;
+    }
+
+    section {
+      padding: 40px 20px;
+      max-width: 1000px;
+      margin: 20px auto; /* Added margin-bottom */
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    h2 {
+      color: var(--iberia-red);
+      text-align: center;
+      position: relative;
+      margin-bottom: 40px;
+      font-size: 1.8em;
+    }
+
+    h2::after {
+      content: "";
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px; /* Smaller underline */
+      height: 3px;
+      background: var(--iberia-yellow);
+    }
+
+    .gamification p {
+      font-size: 1.05em; /* Adjusted size */
+      text-align: center;
+      margin-bottom: 25px; /* Added spacing */
+    }
+
+    .progress-bar-container {
+      width: 80%;
+      margin: 30px auto;
+      background: #e0e0e0;
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--iberia-yellow), var(--iberia-red));
+      transition: width 0.8s ease-out; /* Smoother transition */
+    }
+
+    .mission-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjusted minmax */
+      gap: 25px;
+      margin-top: 40px;
+    }
+
+    .mission-card {
+      background: #fff7f8;
+      border-left: 6px solid var(--iberia-yellow);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07); /* Softer shadow */
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mission-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://www.iberia.com/wcs/logos/iberia/logo-iberia.svg'); /* Use the simpler URL if possible */
+      background-repeat: no-repeat;
+      background-position: center 110%; /* Position lower */
+      background-size: 120px; /* Slightly smaller */
+      opacity: 0.04; /* More subtle */
+      z-index: 0;
+    }
+
+    .mission-card:hover {
+      transform: translateY(-8px); /* Less jump */
+      box-shadow: 0 12px 25px rgba(0,0,0,0.1); /* Adjusted hover shadow */
+    }
+
+    .mission-card.completed {
+      border-left-color: #28a745; /* Green border for completed */
+      background-color: #f2fff5; /* Light green background */
+    }
+
+     .mission-card.completed::before {
+         opacity: 0.02; /* Make logo even fainter on completed */
+     }
+
+    .mission-card.completed::after {
+      content: "✅";
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1.8em; /* Larger checkmark */
+       opacity: 0.8;
+       z-index: 2;
+    }
+
+    /* Make sure button isn't clickable when completed */
+    .mission-card.completed .btn-play {
+        background-color: #9ccc65; /* Lighter green */
+        color: #fff;
+        cursor: not-allowed;
+        pointer-events: none; /* Disable clicks */
+        opacity: 0.8;
+    }
+     .mission-card.completed .btn-play::before {
+         display: none; /* Hide hover effect */
+     }
+
+    .mission-card h3 {
+      margin-top: 0;
+      margin-bottom: 10px; /* Space below title */
+      color: var(--iberia-red);
+      position: relative;
+      z-index: 1;
+      font-size: 1.2em;
+    }
+
+    .mission-card p {
+      flex-grow: 1;
+      position: relative;
+      z-index: 1;
+      font-size: 0.95em; /* Slightly smaller text */
+      line-height: 1.5;
+      margin-bottom: 15px; /* Space before points/button */
+    }
+
+    .badge {
+      position: absolute;
+      top: -12px; /* Position slightly higher */
+      left: -12px; /* Position slightly more left */
+      background: var(--iberia-red); /* Use main red */
+      color: white;
+      border-radius: 50%;
+      width: 35px; /* Slightly smaller */
+      height: 35px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 0.9em; /* Adjust font size in badge */
+      box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+      z-index: 2;
+      border: 2px solid white; /* White border for contrast */
+    }
+
+    .points {
+      color: var(--iberia-red);
+      font-weight: bold;
+      margin-top: auto; /* Push points and button down */
+      text-align: right;
+      position: relative;
+      z-index: 1;
+      font-size: 0.9em;
+      padding-bottom: 10px; /* Space before button */
+    }
+
+    .btn-play {
+      background: var(--iberia-red);
+      color: white;
+      border: none;
+      padding: 10px 20px; /* Slightly smaller padding */
+      font-weight: bold;
+      font-size: 0.95em;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: 100%;
+      margin-top: 10px; /* Reduced margin */
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .btn-play::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.4s ease; /* Slightly slower transition */
+      transform: skewX(-25deg); /* Skewed shine effect */
+      z-index: -1; /* Corrected z-index */
+    }
+
+    .btn-play:hover {
+      background: var(--iberia-dark-red);
+      transform: scale(1.03); /* Smaller scale */
+    }
+
+    .btn-play:hover::before {
+      left: 120%; /* Move shine across */
+    }
+
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 2px solid var(--iberia-red); /* Thinner border */
+      padding: 25px 30px; /* Adjusted padding */
+      z-index: 1001; /* Above overlay */
+      border-radius: 12px;
+      max-width: 750px; /* Slightly narrower */
+      width: 90%;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.25); /* Stronger shadow */
+      max-height: 85vh; /* Slightly less height */
+      overflow-y: auto;
+    }
+
+    .popup h4 {
+      margin-top: 0;
+      margin-bottom: 25px; /* More space below title */
+      color: var(--iberia-red);
+      text-align: center;
+      font-size: 1.4em;
+    }
+
+    .popup .close {
+      position: absolute;
+      top: 12px; /* Adjusted position */
+      right: 15px;
+      cursor: pointer;
+      font-weight: bold;
+      color: var(--iberia-red);
+      font-size: 1.4em; /* Larger close button */
+      transition: transform 0.2s ease, color 0.2s ease;
+      padding: 5px; /* Clickable area */
+      line-height: 1;
+    }
+
+    .popup .close:hover {
+      transform: scale(1.2) rotate(90deg); /* Rotate on hover */
+      color: var(--iberia-dark-red);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.65); /* Darker overlay */
+      z-index: 1000;
+      backdrop-filter: blur(4px); /* Stronger blur */
+    }
+
+    .game-container {
+      margin-top: 20px;
+    }
+
+    .game-step {
+      display: none;
+    }
+
+    .game-step.active {
+      display: block;
+      animation: fadeIn 0.6s ease forwards; /* Smoother fade */
+    }
+
+     /* Specific fade-out for steps */
+    .game-step.fade-out {
+        animation: fadeOut 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+     @keyframes fadeOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+
+
+    .accrual-config, .booking-form, .receipt-form, .rule-card, .fraud-details { /* Added fraud-details */
+      border: 1px solid #e0e0e0;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      background-color: #fdfdfd;
+    }
+
+    .form-group {
+      margin-bottom: 18px; /* More space */
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .form-group select, .form-group input[type="text"], .form-group input[type="number"], .form-group input[type="email"], .form-group input[type="date"] {
+      width: 100%;
+      padding: 12px; /* More padding */
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box; /* Include padding in width */
+      transition: border-color 0.3s ease;
+    }
+     .form-group select:focus, .form-group input:focus {
+         border-color: var(--iberia-red);
+         outline: none;
+         box-shadow: 0 0 5px rgba(200, 16, 46, 0.3);
+     }
+
+    .btn-next, .btn-prev, .btn-complete { /* Added btn-complete */
+      background: var(--iberia-red);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      font-size: 1em;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+      margin-top: 15px;
+    }
+
+    .btn-prev {
+      background: #6c757d;
+      margin-right: 10px;
+    }
+     .btn-complete { /* Style for the final button */
+         background: #4CAF50; /* Green */
+     }
+
+    .btn-next:hover, .btn-complete:hover {
+      background: var(--iberia-dark-red);
+      transform: translateY(-2px);
+    }
+     .btn-complete:hover {
+         background: #388E3C; /* Darker green */
+     }
+
+    .btn-prev:hover {
+      background: #5a6268;
+       transform: translateY(-2px);
+    }
+
+    .btn-container {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 25px; /* More space above buttons */
+      border-top: 1px solid #eee; /* Separator line */
+      padding-top: 20px;
+    }
+
+    .result-container {
+      background: #f1f8e9;
+      border-left: 6px solid #43a047;
+      padding: 20px; /* More padding */
+      border-radius: 8px;
+      margin-top: 25px;
+      animation: fadeIn 0.5s ease;
+    }
+     .result-container p {
+         margin: 5px 0;
+         line-height: 1.6;
+     }
+     .result-container strong {
+         color: #2e7d32; /* Darker green for emphasis */
+     }
+
+
+    .fraud-chart {
+      width: 100%;
+      height: 300px;
+      background: #f8f8f8; /* Lighter background */
+      border-radius: 8px;
+      position: relative;
+      margin: 25px 0;
+      overflow: hidden;
+      border: 1px solid #eee;
+      padding: 20px 10px 0 10px; /* Add padding */
+      box-sizing: border-box;
+    }
+
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: calc(100% - 50px); /* Adjust height for x-axis */
+      width: 100%;
+    }
+
+    .chart-bar {
+      width: 5%; /* Slightly narrower bars */
+      background: #a1daf7; /* Lighter blue */
+      margin: 0 1%; /* Space between bars */
+      border-radius: 4px 4px 0 0; /* Rounded top */
+      transition: height 1s ease-out, background-color 0.5s ease; /* Smooth transitions */
+      position: relative;
+      min-height: 1px; /* Ensure visibility even at 0 height */
+    }
+
+    .chart-bar.anomaly {
+      background: #f44336;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scaleY(1); opacity: 1; }
+      50% { transform: scaleY(1.05); opacity: 0.8; }
+      100% { transform: scaleY(1); opacity: 1; }
+    }
+
+    .chart-x-axis {
+      height: 50px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      width: 100%;
+      padding: 0 10px; /* Match bar padding */
+      box-sizing: border-box;
+      border-top: 1px solid #ddd; /* Axis line */
+    }
+
+    .chart-x-label {
+      width: 5%; /* Match bar width */
+      text-align: center;
+      font-size: 0.75em; /* Smaller labels */
+      color: #777;
+       margin: 0 1%; /* Match bar margin */
+    }
+
+    .alert-box {
+      background: #ffebee;
+      border: 1px solid #f44336;
+      border-left: 5px solid #c62828; /* Stronger left border */
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-top: 25px;
+      color: #c62828;
+      font-weight: bold;
+      display: none; /* Hidden by default */
+      animation: fadeIn 0.5s ease;
+    }
+     .alert-box strong {
+         display: block;
+         margin-bottom: 5px;
+     }
+
+
+    .upgrade-journey {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding: 20px 10px; /* Add horizontal padding */
+      margin: 20px -20px; /* Extend slightly outside container padding */
+      scrollbar-width: thin; /* For Firefox */
+      scrollbar-color: var(--iberia-red) #eee; /* For Firefox */
+    }
+     .upgrade-journey::-webkit-scrollbar { /* For Chrome/Safari */
+        height: 8px;
+     }
+     .upgrade-journey::-webkit-scrollbar-track {
+        background: #eee;
+        border-radius: 4px;
+     }
+     .upgrade-journey::-webkit-scrollbar-thumb {
+        background-color: var(--iberia-red);
+        border-radius: 4px;
+     }
+
+
+    .journey-step {
+      min-width: 150px; /* Wider steps */
+      margin: 0 10px; /* Reduced margin */
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      text-align: center;
+      position: relative;
+      flex-shrink: 0; /* Prevent shrinking */
+      border: 1px solid #e0e0e0;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+     .journey-step:hover {
+         transform: translateY(-5px);
+         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+     }
+
+     .journey-step strong {
+         display: block;
+         font-size: 1.1em;
+         color: var(--iberia-red);
+         margin-bottom: 8px;
+     }
+     .journey-step p {
+         font-size: 0.85em;
+         color: #555;
+         margin: 0;
+     }
+
+    .journey-step::after {
+      content: "→";
+      position: absolute;
+      top: 50%;
+      right: -22px; /* Adjusted position */
+      transform: translateY(-50%);
+      font-size: 1.8em; /* Larger arrow */
+      color: #ccc; /* Lighter arrow */
+    }
+
+    .journey-step:last-child::after {
+      display: none;
+    }
+
+    .rule-comparison {
+      display: grid; /* Use grid for better layout */
+       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 25px 0;
+    }
+
+    .rule-card {
+       /* Styles defined above */
+      background: #f8f9fa; /* Slightly different background */
+    }
+     .rule-card h5 {
+         margin-top: 0;
+         margin-bottom: 15px;
+         color: var(--iberia-red);
+         border-bottom: 2px solid var(--iberia-yellow);
+         padding-bottom: 8px;
+     }
+     .rule-card ul {
+         list-style: none;
+         padding: 0;
+         margin: 0;
+         font-size: 0.9em;
+         line-height: 1.6;
+     }
+     .rule-card li {
+         margin-bottom: 8px;
+         padding-left: 18px;
+         position: relative;
+     }
+     .rule-card li::before {
+         content: '✓'; /* Checkmark */
+         color: #28a745; /* Green */
+         position: absolute;
+         left: 0;
+         font-weight: bold;
+     }
+
+
+    .booking-form, .receipt-form {
+       /* Styles defined above */
+    }
+
+    .retroclaim-status {
+      background: #e3f2fd; /* Light blue background */
+       border-left: 6px solid #1e88e5; /* Blue border */
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 25px;
+      display: none; /* Hidden by default */
+       animation: fadeIn 0.5s ease;
+    }
+     .retroclaim-status h5 {
+         margin-top: 0;
+         margin-bottom: 20px;
+         color: #1565c0; /* Darker blue */
+     }
+
+    .status-steps {
+      display: flex;
+      margin-top: 15px;
+      position: relative;
+      justify-content: space-between; /* Space out steps */
+    }
+
+    .status-steps::before {
+      content: "";
+      position: absolute;
+      top: 15px; /* Align with center of circles */
+      left: 15px; /* Start after first circle */
+      right: 15px; /* End before last circle */
+      height: 4px; /* Thicker line */
+      background: #bdbdbd; /* Grey line */
+      z-index: 0;
+      width: calc(100% - 30px); /* Adjust width */
+    }
+     .status-steps .progress-line { /* Dynamic progress line */
+         position: absolute;
+          top: 15px;
+          left: 15px;
+          height: 4px;
+          background: var(--iberia-red);
+          z-index: 1;
+          width: 0%; /* Initially 0 */
+          transition: width 0.5s ease-in-out;
+     }
+
+    .status-step {
+      flex: 0 0 auto; /* Don't grow/shrink, use auto basis */
+      text-align: center;
+      position: relative;
+      z-index: 2; /* Above lines */
+       width: 80px; /* Give steps some width */
+    }
+
+    .status-step .step-circle {
+      width: 30px;
+      height: 30px;
+      background: #fff;
+      border: 3px solid #bdbdbd; /* Grey border */
+      border-radius: 50%;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      transition: all 0.4s ease;
+       color: #bdbdbd;
+    }
+     .status-step span { /* Text below circle */
+         font-size: 0.8em;
+         color: #777;
+         display: block;
+         transition: color 0.4s ease;
+     }
+
+
+    .status-step.active .step-circle {
+      border-color: var(--iberia-red);
+      background: var(--iberia-red);
+      color: white;
+    }
+     .status-step.active span {
+        color: var(--iberia-red);
+        font-weight: bold;
+     }
+
+
+    .status-step.completed .step-circle {
+      border-color: #43a047;
+      background: #43a047;
+      color: white;
+    }
+     .status-step.completed span {
+         color: #43a047;
+     }
+
+    .medals-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px; /* More gap */
+      margin: 30px auto; /* Center align */
+      justify-content: center;
+      padding: 10px 0;
+      max-width: 400px; /* Limit width */
+    }
+
+    .medal {
+      width: 70px; /* Smaller medals */
+      height: 70px;
+      border-radius: 50%;
+      background: #e0e0e0; /* Default grey */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      position: relative;
+      opacity: 0.6; /* More dimmed */
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy transition */
+      cursor: default; /* Indicate not clickable yet */
+      color: #fff; /* White icon on grey */
+       border: 3px solid #ccc;
+    }
+
+    .medal.earned {
+      background: linear-gradient(135deg, #ffd700, #ffa000); /* Gold gradient */
+      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4); /* Gold shadow */
+      opacity: 1;
+      transform: scale(1.1); /* Slightly larger when earned */
+       border-color: #ffc107; /* Gold border */
+       color: #fff; /* White icon on gold */
+    }
+
+    .medal-tooltip {
+      position: absolute;
+      bottom: -45px; /* Further down */
+      left: 50%;
+      transform: translateX(-50%) scale(0.8); /* Start smaller */
+      background: rgba(0,0,0,0.85);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 5px;
+      font-size: 0.45em; /* Relative to medal size */
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none; /* Don't interfere with hover */
+      z-index: 10;
+    }
+
+    .medal:hover .medal-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) scale(1); /* Scale up on hover */
+    }
+
+    .leaderboard {
+      margin-top: 40px; /* More space above */
+      border: 1px solid #e0e0e0;
+      border-radius: 10px; /* More rounded */
+      overflow: hidden;
+      background-color: #fff; /* White background */
+      box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+    }
+
+    .leaderboard-header {
+      background: linear-gradient(to right, var(--iberia-red), var(--iberia-dark-red)); /* Gradient header */
+      color: white;
+      padding: 12px 20px;
+      text-align: center;
+       font-size: 1.1em;
+       text-transform: uppercase;
+       letter-spacing: 1px;
+    }
+     .leaderboard-header h3 {
+         margin: 0;
+         font-weight: 600; /* Semibold */
+     }
+
+    .leaderboard-item {
+      display: flex;
+      padding: 12px 20px; /* Consistent padding */
+      border-bottom: 1px solid #f0f0f0; /* Lighter border */
+      align-items: center;
+      transition: background-color 0.2s ease;
+    }
+     .leaderboard-item:nth-child(odd) {
+         background-color: #fafafa; /* Zebra striping */
+     }
+     .leaderboard-item:hover {
+         background-color: #f5f5f5;
+     }
+
+    .leaderboard-item:last-child {
+      border-bottom: none;
+    }
+     /* Highlight user's rank */
+     .leaderboard-item.user-rank {
+         background-color: #fff9c4; /* Light yellow highlight */
+         border-left: 4px solid var(--iberia-yellow);
+     }
+
+    .leaderboard-rank {
+      width: 30px;
+      height: 30px;
+      background: #f0f0f0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      font-weight: bold;
+      font-size: 0.9em;
+      color: #555;
+       flex-shrink: 0; /* Prevent shrinking */
+    }
+     /* Style top ranks */
+     .leaderboard-item:nth-child(1) .leaderboard-rank { background: #ffd700; color: #333; } /* Gold */
+     .leaderboard-item:nth-child(2) .leaderboard-rank { background: #c0c0c0; color: #333; } /* Silver */
+     .leaderboard-item:nth-child(3) .leaderboard-rank { background: #cd7f32; color: #fff; } /* Bronze */
+
+
+    .leaderboard-name {
+      flex-grow: 1;
+       font-size: 0.95em;
+    }
+
+    .leaderboard-points {
+      font-weight: bold;
+      color: var(--iberia-red);
+      font-size: 0.95em;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.9em;
+      color: #888; /* Slightly lighter grey */
+      padding: 30px 10px;
+      margin-top: 50px; /* More space */
+      background: #f5f5f5; /* Match section background */
+      border-top: 1px solid #e0e0e0;
+    }
+
+    /* Animaciones y efectos */
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+      40% {transform: translateY(-10px);}
+      60% {transform: translateY(-5px);}
+    }
+
+    .bounce {
+      animation: bounce 2s infinite;
+    }
+
+     /* Confetti Styles */
+    .confetti-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none; /* Allow clicks through */
+        z-index: 2000; /* Above everything */
+        overflow: hidden;
+    }
+
+    .confetti {
+      position: absolute; /* Changed from fixed */
+      width: 10px;
+      height: 10px;
+      background-color: var(--iberia-red); /* Use theme color */
+      opacity: 0.9;
+      animation: confetti-fall 3s linear forwards;
+    }
+
+     .confetti.yellow { background-color: var(--iberia-yellow); }
+     .confetti.dark-red { background-color: var(--iberia-dark-red); }
+     .confetti.shape-rect { width: 12px; height: 6px; border-radius: 2px; }
+
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-50px) rotateZ(0deg) rotateY(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotateZ(720deg) rotateY(360deg);
+        opacity: 0;
+      }
+    }
+    /* Media query for smaller screens */
+    @media (max-width: 768px) {
+        header h1 { font-size: 1.8em; }
+        header p { font-size: 1em; }
+        .header-content { flex-direction: column; text-align: center; }
+        .logo-container { margin-right: 0; margin-bottom: 15px; }
+        .airplane { font-size: 1.5em; opacity: 0.3; }
+        .mission-container { grid-template-columns: 1fr; } /* Stack cards */
+        h2 { font-size: 1.6em; }
+        .popup { max-width: 95%; padding: 20px; }
+        .leaderboard-item { padding: 10px 15px; }
+        .leaderboard-name, .leaderboard-points { font-size: 0.9em; }
+        .medal { width: 60px; height: 60px; font-size: 1.8em;}
+        .rule-comparison { grid-template-columns: 1fr; } /* Stack rule cards */
+    }
+
+  </style>
+</head>
+<body>
+  <div class="overlay" id="overlay"></div>
+  <div class="confetti-container" id="confetti-container"></div> <header>
+    <div class="airplane">✈️</div>
+    <div class="header-content">
+      <div class="logo-container">
+        <img src="https://www.iberia.com/wcs/logos/iberia/logo-iberia.svg" alt="Logo Iberia" class="iberia-logo" />
+      </div>
+      <div class="header-text">
+        <h1>Simulador Interactivo: OnBusiness Iberia</h1>
+        <p>Lidera el futuro del Loyalty B2B con Salesforce</p>
+      </div>
+    </div>
+
+    <div class="dashboard-stats">
+      <p>Tu Progreso: <span id="completed-missions">0</span>/6 misiones</p>
+      <p>Puntos: <span id="total-points">0</span> OB</p>
+    </div>
+  </header>
+
+  <section class="gamification">
+    <h2>🎮 Misiones OnBusiness</h2>
+    <p>Completa las misiones y descubre cómo Salesforce resuelve los retos reales del programa OnBusiness.</p>
+
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="medals-container">
+      <div class="medal" id="medal-all">
+        🏆
+        <div class="medal-tooltip">¡Completa todas las misiones!</div>
+      </div>
+      <div class="medal" id="medal-points">
+        💯
+        <div class="medal-tooltip">Consigue 500+ puntos</div>
+      </div>
+      <div class="medal" id="medal-streak">
+        🔥
+        <div class="medal-tooltip">Completa 3 misiones seguidas</div>
+      </div>
+    </div>
+
+    <div class="mission-container">
+      <div class="mission-card" id="mission1">
+        <div class="badge">1</div>
+        <h3><span role="img" aria-label="plane">✈️</span> Misión: Accrual Surge</h3>
+        <p>Define reglas de bonificación específicas para clientes LATAM1 en función del revenue acumulado.</p>
+        <div class="points">100 puntos</div>
+        <button class="btn-play" onclick="showPopup('popup1')">Jugar misión</button>
+      </div>
+
+      <div class="mission-card" id="mission2">
+        <div class="badge">2</div>
+        <h3><span role="img" aria-label="alert">🚨</span> Misión: Fraud Alert!</h3>
+        <p>Detecta comportamientos anómalos de acumulación masiva de puntos y lanza una alerta al administrador.</p>
+        <div class="points">150 puntos</div>
+        <button class="btn-play" onclick="showPopup('popup2')">Jugar misión</button>
+      </div>
+
+      <div class="mission-card" id="mission3">
+        <div class="badge">3</div>
+        <h3><span role="img" aria-label="up arrow">🔼</span> Misión: Upgrade Push</h3>
+        <p>Lanza una campaña para impulsar a cuentas On2 a alcanzar On3, segmentando por actividad reciente.</p>
+        <div class="points">120 puntos</div>
+        <button class="btn-play" onclick="showPopup('popup3')">Jugar misión</button>
+      </div>
+
+      <div class="mission-card" id="mission4">
+        <div class="badge">4</div>
+        <h3><span role="img" aria-label="globe">🌍</span> Misión: Multi-market Ops</h3>
+        <p>Aplica reglas de negocio diferenciadas para España y Africa1 dentro de un solo entorno usando contextos.</p>
+        <div class="points">100 puntos</div>
+        <button class="btn-play" onclick="showPopup('popup4')">Jugar misión</button>
+      </div>
+
+      <div class="mission-card" id="mission5">
+        <div class="badge">5</div>
+        <h3><span role="img" aria-label="briefcase">👨‍💼</span> Misión: Delegated Booking</h3>
+        <p>Gestiona una reserva hecha por una agencia en nombre de un cliente con perfil delegado (Admin Asistido).</p>
+        <div class="points">80 puntos</div>
+        <button class="btn-play" onclick="showPopup('popup5')">Jugar misión</button>
+      </div>
+
+      <div class="mission-card" id="mission6">
+        <div class="badge">6</div>
+        <h3><span role="img" aria-label="receipt">🧾</span> Misión: Retroclaim Flow</h3>
+        <p>Gestiona la solicitud de puntos por un vuelo anterior no registrado (retroclaim) con BA vía API.</p>
+        <div class="points">120 puntos</div>
+        <button class="btn-play" onclick="showPopup('popup6')">Jugar misión</button>
+      </div>
+    </div>
+
+    <div class="leaderboard">
+      <div class="leaderboard-header">
+        <h3><span role="img" aria-label="trophy">🏆</span> Ranking OnBusiness</h3>
+      </div>
+      <div class="leaderboard-item">
+        <div class="leaderboard-rank">1</div>
+        <div class="leaderboard-name">GlobalTech Solutions</div>
+        <div class="leaderboard-points">720 OB</div>
+      </div>
+      <div class="leaderboard-item">
+        <div class="leaderboard-rank">2</div>
+        <div class="leaderboard-name">Innovate Corp</div>
+        <div class="leaderboard-points">650 OB</div>
+      </div>
+      <div class="leaderboard-item">
+        <div class="leaderboard-rank">3</div>
+        <div class="leaderboard-name">AeroDynamics Ltd.</div>
+        <div class="leaderboard-points">590 OB</div>
+      </div>
+      <div class="leaderboard-item user-rank" id="user-rank-item"> <div class="leaderboard-rank" id="your-rank-position">4</div>
+        <div class="leaderboard-name">Tu Empresa Simulada</div>
+        <div class="leaderboard-points" id="your-rank-points">0 OB</div>
+      </div>
+       <div class="leaderboard-item">
+        <div class="leaderboard-rank">5</div>
+        <div class="leaderboard-name">Nexus Ventures</div>
+        <div class="leaderboard-points">480 OB</div>
+      </div>
+    </div>
+  </section>
+
+  <div id="popup1" class="popup">
+    <span class="close" onclick="closePopup('popup1')" title="Cerrar">✖</span>
+    <h4>Misión: Accrual Surge <span role="img" aria-label="plane">✈️</span></h4>
+
+    <div class="game-container">
+      <div class="game-step active" id="step1-1">
+        <p><strong>Objetivo:</strong> Configurar una regla que otorgue un <strong>25% de puntos extra</strong> a clientes <strong>On2</strong> de <strong>LATAM1</strong> que superen los <strong>€50,000</strong> de revenue en el Q3-Q4.</p>
+
+        <div class="accrual-config">
+          <div class="form-group">
+            <label for="region-select-1">Región Objetivo:</label>
+            <select id="region-select-1">
+              <option value="">Selecciona una región</option>
+              <option value="latam1">LATAM1</option>
+              <option value="emea">EMEA</option>
+              <option value="apac">APAC</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="customer-type-1">Tier de Cliente:</label>
+            <select id="customer-type-1">
+              <option value="">Selecciona tier</option>
+              <option value="on1">On1</option>
+              <option value="on2">On2</option>
+              <option value="on3">On3</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="revenue-threshold-1">Umbral de Revenue (€):</label>
+            <input type="number" id="revenue-threshold-1" placeholder="Ej: 50000" value="50000">
+          </div>
+
+          <div class="form-group">
+            <label for="bonus-factor-1">Factor de Bonificación (%):</label>
+            <input type="number" id="bonus-factor-1" placeholder="Ej: 25" value="25">
+          </div>
+        </div>
+
+        <div class="btn-container">
+          <button class="btn-next" onclick="nextStep('step1-1', 'step1-2')">Siguiente: Aplicación</button>
+        </div>
+      </div>
+
+      <div class="game-step" id="step1-2">
+        <p><strong>Aplicación:</strong> Define cómo y cuándo se aplicará la regla usando las capacidades de Salesforce Loyalty Management.</p>
+
+        <div class="accrual-config">
+           <div class="form-group">
+            <label for="rule-name-1">Nombre de la Regla:</label>
+            <input type="text" id="rule-name-1" value="LATAM1_On2_Q3Q4_Bonus">
+          </div>
+          <div class="form-group">
+            <label for="validity-period-1">Período de Validez:</label>
+            <select id="validity-period-1">
+              <option value="">Selecciona período</option>
+              <option value="q3-q4" selected>Q3-Q4 2025</option>
+              <option value="annual">Anual 2025</option>
+              <option value="permanent">Permanente</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="activation-condition-1">Condición de Activación:</label>
+            <select id="activation-condition-1">
+              <option value="">Selecciona condición</option>
+              <option value="automatic" selected>Automática al alcanzar umbral de revenue</option>
+              <option value="batch">Proceso Batch Nocturno</option>
+              <option value="manual">Activación manual</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="communication-channel-1">Notificación al Cliente:</label>
+            <select id="communication-channel-1">
+              <option value="">Selecciona canal</option>
+              <option value="email">Email</option>
+              <option value="portal">Portal OnBusiness</option>
+              <option value="both" selected>Ambos</option>
+              <option value="none">Sin notificación</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btn-container">
+          <button class="btn-prev" onclick="prevStep('step1-2', 'step1-1')">Anterior</button>
+          <button class="btn-complete" onclick="completeMission('popup1', 1, 100)">Crear y Activar Regla</button>
+        </div>
+      </div>
+       <div class="game-step" id="step1-result"> <div class="result-container">
+               <h4>¡Regla Creada!</h4>
+               <p>Has configurado con éxito la regla <strong>LATAM1_On2_Q3Q4_Bonus</strong>.</p>
+               <p>Los clientes On2 de LATAM1 que superen €50,000 en revenue durante Q3-Q4 recibirán automáticamente un <strong>25% de puntos extra</strong> y serán notificados por email y en el portal.</p>
+               <strong>+100 Puntos OnBusiness!</strong>
+           </div>
+           <div class="btn-container">
+               <button class="btn-next" onclick="closePopup('popup1')">Cerrar</button>
+           </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="popup2" class="popup">
+    <span class="close" onclick="closePopup('popup2')" title="Cerrar">✖</span>
+    <h4>Misión: Fraud Alert! <span role="img" aria-label="alert">🚨</span></h4>
+
+    <div class="game-container">
+      <div class="game-step active" id="step2-1">
+        <p><strong>Escenario:</strong> El sistema ha detectado un patrón sospechoso. La cuenta "Viajes Express" ha acumulado <strong>15,000 puntos</strong> en 48h, cuando su media mensual es 2,000.</p>
+        <p>Visualiza la actividad reciente para identificar la anomalía.</p>
+
+        <div class="fraud-chart" id="fraud-chart-container">
+          <div class="chart-bars" id="fraud-chart-bars">
+            </div>
+          <div class="chart-x-axis" id="fraud-chart-labels">
+            </div>
+        </div>
+        <small style="text-align: center; display:block; color: #666;">Acumulación de puntos en los últimos 15 días.</small>
+
+
+        <div class="btn-container">
+           <button class="btn-next" onclick="simulateFraudChart(); nextStep('step2-1', 'step2-2');">Simular Detección</button>
+        </div>
+      </div>
+
+       <div class="game-step" id="step2-2">
+           <p><strong>Análisis:</strong> La gráfica muestra un pico anómalo en los últimos dos días.</p>
+           <div class="alert-box" id="fraud-alert-box">
+               <strong>¡Alerta de Fraude Potencial!</strong>
+               Cuenta "Viajes Express" (ID: 789123) ha superado el umbral de desviación estándar (3σ) en acumulación de puntos.
+               <br>Acción recomendada: Revisar transacciones, contactar gestor de cuenta.
+           </div>
+           <p>Salesforce Loyalty Management permite configurar reglas que detectan estas desviaciones y automáticamente:</p>
+           <ul>
+               <li>Generan una alerta para el administrador.</li>
+               <li>Ponen la cuenta en revisión.</li>
+               <li>Bloquean temporalmente la redención de puntos.</li>
+           </ul>
+
+
+            <div class="btn-container">
+              <button class="btn-prev" onclick="prevStep('step2-2', 'step2-1')">Ver Gráfica</button>
+              <button class="btn-complete" onclick="completeMission('popup2', 2, 150)">Marcar como Gestionado</button>
+            </div>
+      </div>
+        <div class="game-step" id="step2-result"> <div class="result-container">
+               <h4>¡Anomalía Gestionada!</h4>
+               <p>Has identificado y marcado la alerta de fraude potencial para "Viajes Express".</p>
+               <p>El sistema ha registrado la acción y el gestor de cuenta ha sido notificado para investigar más a fondo. La rápida detección previene abusos del programa.</p>
+               <strong>+150 Puntos OnBusiness!</strong>
+           </div>
+           <div class="btn-container">
+               <button class="btn-next" onclick="closePopup('popup2')">Cerrar</button>
+           </div>
+        </div>
+    </div>
+  </div>
+
+   <div id="popup3" class="popup">
+        <span class="close" onclick="closePopup('popup3')" title="Cerrar">✖</span>
+        <h4>Misión: Upgrade Push <span role="img" aria-label="up arrow">🔼</span></h4>
+        <div class="game-container">
+            <div class="game-step active" id="step3-1">
+                <p><strong>Objetivo:</strong> Crear una campaña en Marketing Cloud / Journey Builder para animar a las cuentas <strong>On2</strong> a alcanzar el nivel <strong>On3</strong>.</p>
+                <p>Segmentaremos las cuentas On2 que han mostrado actividad (reservas/acumulación) en los últimos <strong>60 días</strong> y están a menos de <strong>€10,000</strong> de alcanzar el umbral de On3.</p>
+
+                <div class="accrual-config">
+                    <div class="form-group">
+                        <label>Segmento Base:</label>
+                        <input type="text" value="Tier = On2" readonly>
+                    </div>
+                     <div class="form-group">
+                        <label>Filtro Adicional 1:</label>
+                        <input type="text" value="Última Actividad <= 60 días" readonly>
+                    </div>
+                     <div class="form-group">
+                        <label>Filtro Adicional 2:</label>
+                         <input type="text" value="Revenue para On3 < €10,000" readonly>
+                    </div>
+                     <div class="form-group">
+                        <label>Nombre de la Campaña:</label>
+                        <input type="text" value="Push_On2_to_On3_Activos_Q3">
+                    </div>
+                </div>
+
+                <div class="btn-container">
+                    <button class="btn-next" onclick="nextStep('step3-1', 'step3-2')">Siguiente: Diseñar Journey</button>
+                </div>
+            </div>
+            <div class="game-step" id="step3-2">
+                 <p><strong>Diseño del Journey (Simplificado):</strong></p>
+                 <div class="upgrade-journey">
+                     <div class="journey-step"><strong>Entrada</strong><p>Segmento On2 Activo</p></div>
+                     <div class="journey-step"><strong>Email 1</strong><p>Beneficios On3 + Oferta Doble Punto</p></div>
+                     <div class="journey-step"><strong>Espera</strong><p>7 días</p></div>
+                     <div class="journey-step"><strong>Decisión</strong><p>¿Ha alcanzado On3?</p></div>
+                     <div class="journey-step"><strong>Email 2 (Si No)</strong><p>Recordatorio Oferta + Caso Éxito</p></div>
+                      <div class="journey-step"><strong>Actualizar CRM (Si Sí)</strong><p>Marcar como Convertido</p></div>
+                     <div class="journey-step"><strong>Salida</strong><p>Fin del Journey</p></div>
+                 </div>
+                  <p style="margin-top: 15px;">Este journey automatizado en Salesforce Marketing Cloud nutre a los clientes adecuados con mensajes personalizados para fomentar el upgrade.</p>
+                 <div class="btn-container">
+                    <button class="btn-prev" onclick="prevStep('step3-2', 'step3-1')">Ver Segmento</button>
+                    <button class="btn-complete" onclick="completeMission('popup3', 3, 120)">Lanzar Campaña</button>
+                </div>
+            </div>
+            <div class="game-step" id="step3-result">
+               <div class="result-container">
+                   <h4>¡Campaña Lanzada!</h4>
+                   <p>Has configurado y lanzado con éxito la campaña <strong>Push_On2_to_On3_Activos_Q3</strong>.</p>
+                   <p>El journey automatizado contactará a las cuentas elegibles para impulsar el upgrade a On3, aumentando el valor y la fidelidad.</p>
+                   <strong>+120 Puntos OnBusiness!</strong>
+               </div>
+               <div class="btn-container">
+                   <button class="btn-next" onclick="closePopup('popup3')">Cerrar</button>
+               </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup4" class="popup">
+        <span class="close" onclick="closePopup('popup4')" title="Cerrar">✖</span>
+        <h4>Misión: Multi-market Ops <span role="img" aria-label="globe">🌍</span></h4>
+        <div class="game-container">
+            <div class="game-step active" id="step4-1">
+                <p><strong>Reto:</strong> OnBusiness opera globalmente. Necesitamos aplicar reglas de acumulación diferentes para <strong>España (ES)</strong> y <strong>Africa1 (AF1)</strong> sin crear programas separados.</p>
+                 <p><strong>Solución:</strong> Usar 'Context Definitions' en Salesforce Loyalty Management.</p>
+
+                 <div class="rule-comparison">
+                     <div class="rule-card">
+                         <h5>Reglas para ESPAÑA (ES)</h5>
+                         <ul>
+                             <li>Acumulación base: 1 OB por cada € gastado.</li>
+                             <li>Bonus rutas europeas: +10% OB.</li>
+                              <li>Promoción Verano: Dobles puntos en Julio-Agosto.</li>
+                         </ul>
+                     </div>
+                      <div class="rule-card">
+                         <h5>Reglas para AFRICA1 (AF1)</h5>
+                          <ul>
+                             <li>Acumulación base: 1.2 OB por cada € gastado.</li>
+                             <li>Bonus rutas intercontinentales: +15% OB.</li>
+                             <li>Sin promoción de verano específica.</li>
+                         </ul>
+                     </div>
+                 </div>
+                 <p>Configuraremos estas diferencias usando el mismo conjunto de reglas base, pero aplicando modificadores basados en el contexto del mercado (definido en la cuenta del cliente).</p>
+
+                <div class="btn-container">
+                    <button class="btn-next" onclick="nextStep('step4-1', 'step4-2')">Siguiente: Configurar Contexto</button>
+                </div>
+            </div>
+             <div class="game-step" id="step4-2">
+                <p><strong>Configuración del Contexto (Ejemplo):</strong></p>
+                 <div class="accrual-config">
+                     <div class="form-group">
+                         <label>Definición de Contexto:</label>
+                         <input type="text" value="MercadoCliente" readonly>
+                     </div>
+                     <div class="form-group">
+                         <label>Valores Posibles:</label>
+                         <input type="text" value="ES, AF1, LATAM1, EMEA_Other, ..." readonly>
+                     </div>
+                      <div class="form-group">
+                         <label>Campo en Cuenta:</label>
+                         <input type="text" value="Account.Market_Region__c" readonly>
+                     </div>
+                     <hr style="margin: 15px 0; border-color: #eee;">
+                     <p style="font-size: 0.9em;"><strong>Ejemplo de Modificador de Regla:</strong><br>
+                        SI Contexto.MercadoCliente = 'AF1' ENTONCES MultiplicadorAcumulacionBase = 1.2<br>
+                        SI Contexto.MercadoCliente = 'ES' Y MesActual IN (7, 8) ENTONCES MultiplicadorPromocion = 2.0
+                     </p>
+
+                 </div>
+                  <p>Esta aproximación permite gestionar múltiples mercados eficientemente dentro de una única instancia del programa de lealtad.</p>
+                 <div class="btn-container">
+                    <button class="btn-prev" onclick="prevStep('step4-2', 'step4-1')">Ver Reglas</button>
+                    <button class="btn-complete" onclick="completeMission('popup4', 4, 100)">Guardar Configuración</button>
+                </div>
+            </div>
+            <div class="game-step" id="step4-result">
+                 <div class="result-container">
+                   <h4>¡Contextos Configurados!</h4>
+                   <p>Has definido cómo aplicar reglas diferenciadas por mercado usando 'Context Definitions'.</p>
+                   <p>Esto simplifica enormemente la gestión de un programa global como OnBusiness, permitiendo flexibilidad y escalabilidad.</p>
+                   <strong>+100 Puntos OnBusiness!</strong>
+               </div>
+               <div class="btn-container">
+                   <button class="btn-next" onclick="closePopup('popup4')">Cerrar</button>
+               </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup5" class="popup">
+        <span class="close" onclick="closePopup('popup5')" title="Cerrar">✖</span>
+        <h4>Misión: Delegated Booking <span role="img" aria-label="briefcase">👨‍💼</span></h4>
+        <div class="game-container">
+            <div class="game-step active" id="step5-1">
+                <p><strong>Escenario:</strong> Una agencia de viajes ("Global Travel Hub") necesita hacer una reserva para su cliente "Innovate Corp" usando los puntos OnBusiness de Innovate Corp.</p>
+                <p><strong>Solución:</strong> Usar la funcionalidad de Administrador Asistido (Delegated / Assisted Admin) de Salesforce Experience Cloud y Loyalty Management.</p>
+
+                <div class="booking-form">
+                     <h5>Simulación de Reserva Asistida</h5>
+                     <div class="form-group">
+                         <label>Agencia (Administrador Asistido):</label>
+                         <input type="text" value="Global Travel Hub (Agent: Ana López)" readonly>
+                     </div>
+                     <div class="form-group">
+                         <label>Actuando en nombre de (Cliente):</label>
+                         <input type="text" value="Innovate Corp (OnBusiness ID: 456789)" readonly>
+                     </div>
+                     <div class="form-group">
+                         <label>Vuelo a Reservar:</label>
+                         <input type="text" value="IB6845 MAD-LHR (Business Class)" readonly>
+                     </div>
+                     <div class="form-group">
+                         <label>Coste en Puntos OB:</label>
+                         <input type="number" value="8500" readonly>
+                     </div>
+                      <div class="form-group">
+                         <label>Saldo Actual de Innovate Corp:</label>
+                         <input type="text" value="12350 OB" readonly>
+                     </div>
+                </div>
+
+
+                <div class="btn-container">
+                    <button class="btn-next" onclick="nextStep('step5-1', 'step5-2')">Confirmar Reserva</button>
+                </div>
+            </div>
+            <div class="game-step" id="step5-2">
+                 <p><strong>Resultado:</strong> La reserva se procesa.</p>
+                  <div class="result-container">
+                      <h4>Reserva Confirmada</h4>
+                      <p>La reserva para <strong>Innovate Corp</strong> ha sido realizada por <strong>Global Travel Hub</strong>.</p>
+                      <ul>
+                          <li>Puntos deducidos de Innovate Corp: <strong>8500 OB</strong></li>
+                          <li>Nuevo Saldo: <strong>3850 OB</strong></li>
+                          <li>Auditoría: Se registra que la acción fue realizada por Ana López (Global Travel Hub) en nombre de Innovate Corp.</li>
+                          <li>Notificaciones: Se envía confirmación tanto a la agencia como al cliente.</li>
+                      </ul>
+                      <p>Esta funcionalidad es clave para el ecosistema B2B donde las agencias gestionan viajes para empresas.</p>
+                 </div>
+
+                 <div class="btn-container">
+                    <button class="btn-prev" onclick="prevStep('step5-2', 'step5-1')">Ver Datos Reserva</button>
+                    <button class="btn-complete" onclick="completeMission('popup5', 5, 80)">Finalizar Proceso</button>
+                </div>
+            </div>
+            <div class="game-step" id="step5-result">
+                 <div class="result-container">
+                   <h4>¡Reserva Delegada Gestionada!</h4>
+                   <p>Has simulado con éxito una reserva realizada por una agencia en nombre de un cliente.</p>
+                   <p>La capacidad de administración delegada es crucial para el modelo de negocio de OnBusiness, facilitando la colaboración con agencias de viajes.</p>
+                   <strong>+80 Puntos OnBusiness!</strong>
+               </div>
+               <div class="btn-container">
+                   <button class="btn-next" onclick="closePopup('popup5')">Cerrar</button>
+               </div>
+            </div>
+        </div>
+    </div>
+
+     <div id="popup6" class="popup">
+        <span class="close" onclick="closePopup('popup6')" title="Cerrar">✖</span>
+        <h4>Misión: Retroclaim Flow <span role="img" aria-label="receipt">🧾</span></h4>
+        <div class="game-container">
+            <div class="game-step active" id="step6-1">
+                <p><strong>Escenario:</strong> Un cliente ("TechWave Inc.") solicita puntos por un vuelo de British Airways (BA) realizado hace 2 meses que no se acreditó automáticamente.</p>
+                <p><strong>Proceso:</strong> El cliente envía los detalles del billete a través del portal OnBusiness.</p>
+
+                <div class="receipt-form">
+                     <h5>Solicitud de Retroclaim</h5>
+                     <div class="form-group">
+                         <label>Cliente:</label>
+                         <input type="text" value="TechWave Inc. (OnBusiness ID: 987654)" readonly>
+                     </div>
+                     <div class="form-group">
+                         <label>Número de Billete (Ticket Number):</label>
+                         <input type="text" value="125-1234567890">
+                     </div>
+                     <div class="form-group">
+                         <label>Fecha del Vuelo:</label>
+                         <input type="date" value="2025-01-15" readonly> </div>
+                     <div class="form-group">
+                         <label>Ruta (Origen-Destino):</label>
+                         <input type="text" value="LHR-JFK">
+                     </div>
+                      <div class="form-group">
+                         <label>Aerolínea Operadora:</label>
+                         <input type="text" value="British Airways (BA)" readonly>
+                     </div>
+                </div>
+
+
+                <div class="btn-container">
+                    <button class="btn-next" onclick="simulateRetroclaim(); nextStep('step6-1', 'step6-2');">Enviar Solicitud</button>
+                </div>
+            </div>
+            <div class="game-step" id="step6-2">
+                 <p><strong>Procesamiento:</strong> Salesforce Loyalty Management inicia un flujo automatizado:</p>
+                 <ol>
+                     <li>Validación inicial de datos (formato billete, fecha).</li>
+                     <li>Llamada API segura a British Airways para verificar los detalles del vuelo y la elegibilidad para puntos OnBusiness.</li>
+                     <li>Recepción de respuesta de BA (Vuelo válido, pasajero elegible, puntos a otorgar: 650 OB).</li>
+                     <li>Cálculo de puntos OnBusiness según reglas de acumulación para vuelos partner.</li>
+                     <li>Acreditación de puntos en la cuenta de TechWave Inc.</li>
+                     <li>Actualización del estado de la solicitud y notificación al cliente.</li>
+                 </ol>
+
+                 <div class="retroclaim-status" id="retroclaim-status-display">
+                    <h5>Estado de la Solicitud</h5>
+                    <div class="status-steps">
+                        <div class="progress-line" id="retroclaim-progress-line"></div> <div class="status-step" id="rs-step1">
+                            <div class="step-circle">1</div>
+                            <span>Recibida</span>
+                        </div>
+                        <div class="status-step" id="rs-step2">
+                            <div class="step-circle">2</div>
+                            <span>Validando</span>
+                        </div>
+                        <div class="status-step" id="rs-step3">
+                            <div class="step-circle">3</div>
+                            <span>Verificando<br>con BA</span>
+                        </div>
+                        <div class="status-step" id="rs-step4">
+                            <div class="step-circle">4</div>
+                            <span>Acreditada</span>
+                        </div>
+                         <div class="status-step" id="rs-step5">
+                            <div class="step-circle">✓</div>
+                            <span>Completada</span>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="btn-container">
+                    <button class="btn-prev" onclick="prevStep('step6-2', 'step6-1')">Ver Solicitud</button>
+                    <button class="btn-complete" onclick="completeMission('popup6', 6, 120)">Marcar como Completado</button>
+                </div>
+            </div>
+             <div class="game-step" id="step6-result">
+                 <div class="result-container">
+                   <h4>¡Retroclaim Procesado!</h4>
+                   <p>Has gestionado con éxito la solicitud de puntos retroactivos para TechWave Inc.</p>
+                   <p>La integración vía API con aerolíneas asociadas como BA es esencial para una experiencia de cliente fluida y una correcta acumulación de puntos en el programa OnBusiness.</p>
+                   <p>Se han acreditado <strong>650 OB</strong> adicionales a la cuenta.</p>
+                   <strong>+120 Puntos OnBusiness!</strong>
+               </div>
+               <div class="btn-container">
+                   <button class="btn-next" onclick="closePopup('popup6')">Cerrar</button>
+               </div>
+            </div>
+        </div>
+    </div>
+
+  <footer>
+    © 2025 Simulador OnBusiness - Demostración con fines educativos. Iberia y OnBusiness son marcas registradas de Iberia LAE S.A. Operadora Unipersonal.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- State Variables ---
+        let totalPoints = 0;
+        let completedMissionsCount = 0;
+        const totalMissions = 6;
+        let completedMissionIds = new Set(); // Track completed missions by number
+        let consecutiveCompletions = 0; // For streak medal
+
+        // --- DOM Elements ---
+        const overlay = document.getElementById('overlay');
+        const completedMissionsSpan = document.getElementById('completed-missions');
+        const totalPointsSpan = document.getElementById('total-points');
+        const progressBar = document.getElementById('progress-bar');
+        const yourRankPointsSpan = document.getElementById('your-rank-points');
+        const confettiContainer = document.getElementById('confetti-container');
+
+        // --- Core Functions ---
+
+        window.showPopup = (popupId) => {
+            const popup = document.getElementById(popupId);
+            if (popup) {
+                overlay.style.display = 'block';
+                popup.style.display = 'block';
+                 // Reset to first step when opening
+                 const steps = popup.querySelectorAll('.game-step');
+                 steps.forEach((step, index) => {
+                     step.classList.remove('active', 'fade-out');
+                     if (index === 0) {
+                         step.classList.add('active');
+                     }
+                 });
+                 // Hide result containers/alert boxes initially
+                 const results = popup.querySelectorAll('.result-container, .alert-box, .retroclaim-status');
+                 results.forEach(res => res.style.display = 'none');
+            }
+        }
+
+        window.closePopup = (popupId) => {
+            const popup = document.getElementById(popupId);
+            if (popup) {
+                popup.style.display = 'none';
+                overlay.style.display = 'none';
+            }
+        }
+
+       window.nextStep = (currentStepId, nextStepId) => {
+            const currentStep = document.getElementById(currentStepId);
+            const nextStep = document.getElementById(nextStepId);
+
+            if (currentStep && nextStep) {
+                currentStep.classList.add('fade-out'); // Start fade out
+                 setTimeout(() => {
+                     currentStep.classList.remove('active', 'fade-out');
+                     nextStep.classList.remove('fade-out'); // Ensure next step isn't fading out
+                     nextStep.classList.add('active'); // Activate next step
+                 }, 400); // Match fadeOut animation duration
+            }
+        }
+
+        window.prevStep = (currentStepId, prevStepId) => {
+             const currentStep = document.getElementById(currentStepId);
+            const prevStep = document.getElementById(prevStepId);
+
+            if (currentStep && prevStep) {
+                 currentStep.classList.add('fade-out');
+                 setTimeout(() => {
+                    currentStep.classList.remove('active', 'fade-out');
+                    prevStep.classList.remove('fade-out');
+                    prevStep.classList.add('active');
+                 }, 400);
+            }
+        }
+
+        window.completeMission = (popupId, missionNumber, points) => {
+            if (completedMissionIds.has(missionNumber)) {
+                console.log(`Mission ${missionNumber} already completed.`);
+                // Optionally show the result step directly and close
+                const resultStep = document.getElementById(`step${missionNumber}-result`);
+                if (resultStep) {
+                    nextStep(`step${missionNumber}-2`, `step${missionNumber}-result`); // Assuming last step before result is -2
+                } else {
+                     closePopup(popupId);
+                }
+                return; // Don't process again
+            }
+
+            // Mark as completed
+            completedMissionIds.add(missionNumber);
+            completedMissionsCount++;
+            totalPoints += points;
+
+             // Logic for streak medal (simple version)
+             // Assumes missions are done roughly in order for the streak counter
+             // A real implementation might need to track timestamps or specific order
+             if (completedMissionIds.has(missionNumber - 1) || completedMissionsCount === 1 ) {
+                  consecutiveCompletions++;
+             } else {
+                  consecutiveCompletions = 1; // Reset streak if non-consecutive
+             }
+
+
+            // Update UI
+            completedMissionsSpan.textContent = completedMissionsCount;
+            totalPointsSpan.textContent = totalPoints;
+            yourRankPointsSpan.textContent = `${totalPoints} OB`; // Update leaderboard points
+            updateProgressBar();
+
+            // Mark mission card as completed
+            const missionCard = document.getElementById(`mission${missionNumber}`);
+            if (missionCard) {
+                missionCard.classList.add('completed');
+                 // Find the button and update text (optional)
+                 const button = missionCard.querySelector('.btn-play');
+                 if (button) {
+                     button.textContent = 'Misión Completada';
+                 }
+            }
+
+            // Check for medals
+            checkMedals();
+
+            // Show result step (if it exists)
+            const resultStepId = `step${missionNumber}-result`;
+            const resultStep = document.getElementById(resultStepId);
+            if (resultStep) {
+                // Find the last interactive step ID dynamically (usually ends in -2 or -1)
+                 let lastInteractiveStep = document.getElementById(`step${missionNumber}-2`) || document.getElementById(`step${missionNumber}-1`);
+                if(lastInteractiveStep){
+                    resultStep.style.display = 'block'; // Ensure it's display block before animation
+                    nextStep(lastInteractiveStep.id, resultStepId);
+                } else {
+                     closePopup(popupId); // Fallback if structure is different
+                }
+
+            } else {
+                 // Close popup if no result step
+                 closePopup(popupId);
+            }
+
+             // Trigger confetti
+             triggerConfetti();
+        }
+
+        // --- Helper Functions ---
+
+        function updateProgressBar() {
+            const percentage = (completedMissionsCount / totalMissions) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        function checkMedals() {
+            // Medal 1: Complete all missions
+            const medalAll = document.getElementById('medal-all');
+            if (completedMissionsCount === totalMissions && !medalAll.classList.contains('earned')) {
+                medalAll.classList.add('earned');
+                showMedalNotification('¡Maestro OnBusiness!', 'Has completado todas las misiones.');
+            }
+
+            // Medal 2: Reach 500+ points
+            const medalPoints = document.getElementById('medal-points');
+             if (totalPoints >= 500 && !medalPoints.classList.contains('earned')) {
+                medalPoints.classList.add('earned');
+                 showMedalNotification('¡Acumulador Experto!', 'Has superado los 500 puntos OnBusiness.');
+            }
+
+            // Medal 3: Complete 3 missions in a row (simple check)
+            const medalStreak = document.getElementById('medal-streak');
+            if (consecutiveCompletions >= 3 && !medalStreak.classList.contains('earned')) {
+                medalStreak.classList.add('earned');
+                 showMedalNotification('¡En Racha!', 'Has completado 3 misiones seguidas.');
+            }
+        }
+
+         // Simple notification function (replace with a nicer library if needed)
+         function showMedalNotification(title, message) {
+             // You could implement a more visually appealing notification system here
+             console.log(`%c MEDALLA DESBLOQUEADA: ${title} - ${message}`, 'color: gold; font-weight: bold;');
+             // Example: alert(`MEDALLA DESBLOQUEADA:\n${title}\n${message}`);
+         }
+
+        // --- Mission Specific Simulations ---
+
+         window.simulateFraudChart = () => {
+            const barsContainer = document.getElementById('fraud-chart-bars');
+            const labelsContainer = document.getElementById('fraud-chart-labels');
+            const alertBox = document.getElementById('fraud-alert-box');
+            barsContainer.innerHTML = ''; // Clear previous bars
+            labelsContainer.innerHTML = ''; // Clear previous labels
+
+            const days = 15;
+            const normalMax = 15; // Normal accumulation max height %
+            const anomalyHeight = 85; // Anomaly height %
+            const anomalyDay1 = 13; // Day index (0-based) for anomaly start
+            const anomalyDay2 = 14;
+
+            for (let i = 0; i < days; i++) {
+                const bar = document.createElement('div');
+                bar.classList.add('chart-bar');
+
+                let heightPercent;
+                if (i === anomalyDay1 || i === anomalyDay2) {
+                    heightPercent = anomalyHeight + Math.random() * 10; // Add slight variation
+                    bar.classList.add('anomaly');
+                 } else if (i > 9) { // Slightly higher recent normal activity
+                      heightPercent = Math.random() * (normalMax + 5);
+                 }
+                 else {
+                    heightPercent = Math.random() * normalMax;
+                }
+                // Set height with a delay for transition effect
+                setTimeout(() => {
+                     bar.style.height = `${Math.max(heightPercent, 1)}%`; // Ensure min 1% height
+                }, 100 + i * 30);
+
+
+                barsContainer.appendChild(bar);
+
+                const label = document.createElement('div');
+                label.classList.add('chart-x-label');
+                label.textContent = `D-${days - 1 - i}`; // D-14, D-13, ..., D-0
+                labelsContainer.appendChild(label);
+            }
+             // Show the alert box after a delay
+             setTimeout(() => {
+                 alertBox.style.display = 'block';
+             }, 1000); // Show alert after chart animation starts
+        }
+
+        window.simulateRetroclaim = () => {
+            const statusContainer = document.getElementById('retroclaim-status-display');
+            const steps = statusContainer.querySelectorAll('.status-step');
+             const progressLine = document.getElementById('retroclaim-progress-line');
+            statusContainer.style.display = 'block'; // Show the status section
+
+             const stepCount = steps.length;
+             let currentStep = 0;
+
+             // Reset styles
+             steps.forEach(step => step.classList.remove('active', 'completed'));
+             progressLine.style.width = '0%';
+
+
+            function advanceStep() {
+                if (currentStep < stepCount) {
+                    // Mark previous as completed (if not the first)
+                    if (currentStep > 0) {
+                         steps[currentStep - 1].classList.remove('active');
+                         steps[currentStep - 1].classList.add('completed');
+                    }
+                     // Mark current as active
+                     steps[currentStep].classList.add('active');
+
+                    // Update progress line width
+                     const percentage = (currentStep / (stepCount -1)) * 100;
+                     progressLine.style.width = `${percentage}%`;
+
+
+                    currentStep++;
+                     if (currentStep <= stepCount) { // Continue if there are more steps
+                         setTimeout(advanceStep, 800); // Delay between steps
+                    }
+                }
+             }
+             setTimeout(advanceStep, 300); // Initial delay
+        }
+
+
+        // --- Confetti Function ---
+        function triggerConfetti() {
+            const colors = ['var(--iberia-red)', 'var(--iberia-yellow)', 'var(--iberia-dark-red)', '#ffffff'];
+            const shapes = ['square', 'rect'];
+
+            for (let i = 0; i < 50; i++) { // Create 50 confetti pieces
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+
+                // Random color
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+                 // Random shape
+                 if (Math.random() > 0.5) {
+                      confetti.classList.add(`shape-${shapes[Math.floor(Math.random() * shapes.length)]}`);
+                 } else {
+                      confetti.style.borderRadius = '50%'; // Circle
+                 }
+
+
+                // Random position and animation delay/duration
+                confetti.style.left = `${Math.random() * 100}vw`;
+                const duration = 2 + Math.random() * 2; // 2-4 seconds fall time
+                confetti.style.animationDuration = `${duration}s`;
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`; // Stagger start times
+
+                 // Random horizontal drift
+                 const drift = (Math.random() - 0.5) * 200; // Pixels left/right
+                 confetti.animate([
+                     { transform: `translateY(-50px) translateX(0px) rotateZ(0deg) rotateY(0deg)`, opacity: 1 },
+                     { transform: `translateY(100vh) translateX(${drift}px) rotateZ(${Math.random()*720}deg) rotateY(${Math.random()*360}deg)`, opacity: 0 }
+                 ], {
+                     duration: duration * 1000, // ms
+                     delay: parseFloat(confetti.style.animationDelay) * 1000,
+                     easing: 'linear',
+                     fill: 'forwards'
+                 });
+
+
+                confettiContainer.appendChild(confetti);
+
+                // Remove confetti element after animation ends
+                setTimeout(() => {
+                    confetti.remove();
+                }, (duration + parseFloat(confetti.style.animationDelay)) * 1000);
+            }
+        }
+
+
+         // --- Initialization (Optional) ---
+         // Could add code here if needed when the page loads
+         console.log("Simulador OnBusiness Inicializado.");
+
+    });
+  </script>
+</body>
+</html>
