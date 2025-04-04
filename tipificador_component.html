@@ -1,0 +1,177 @@
+<!-- tipificador.component.html -->
+<div class="container">
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h2>Tipificador de Ingresos Bancarios</h2>
+    </div>
+    <div class="card-body">
+      <!-- Formulario principal -->
+      <div class="form-group">
+        <label for="conceptoIngreso">Concepto del Ingreso:</label>
+        <div class="input-group">
+          <input 
+            type="text" 
+            class="form-control" 
+            id="conceptoIngreso" 
+            [(ngModel)]="concepto" 
+            placeholder="Introduce el concepto de tu ingreso bancario"
+            [disabled]="cargando">
+          <button 
+            class="btn btn-primary" 
+            (click)="verificarTipo()" 
+            [disabled]="!concepto || cargando">
+            <i class="fas" [ngClass]="cargando ? 'fa-spinner fa-spin' : 'fa-search'"></i>
+            {{ cargando ? 'Verificando...' : 'Verificar Tipo' }}
+          </button>
+        </div>
+        <small class="form-text text-muted">
+          Ejemplo: "Nómina Empresa XYZ", "Transferencia Cliente", "Depósito Efectivo"
+        </small>
+      </div>
+      
+      <!-- Resultado de la tipificación -->
+      <div class="mt-4" *ngIf="tipoIngreso">
+        <div class="alert" [ngClass]="{'alert-success': !editandoTipo, 'alert-warning': editandoTipo}">
+          <div *ngIf="!editandoTipo">
+            <h4 class="alert-heading">
+              <i class="fas fa-tag"></i> Tipo de Ingreso: 
+              <span class="badge bg-info">{{tipoIngreso}}</span>
+            </h4>
+            <p>Si este tipo no es correcto, puedes corregirlo:</p>
+            <button class="btn btn-outline-secondary" (click)="habilitarEdicion()">
+              <i class="fas fa-edit"></i> Corregir Tipo
+            </button>
+          </div>
+          
+          <div *ngIf="editandoTipo">
+            <h4 class="alert-heading">
+              <i class="fas fa-edit"></i> Corregir Tipo de Ingreso:
+            </h4>
+            <div class="input-group mb-3">
+              <input 
+                type="text" 
+                class="form-control" 
+                [(ngModel)]="tipoCorregido" 
+                placeholder="Introduce el tipo correcto">
+              <button 
+                class="btn btn-success" 
+                type="button" 
+                (click)="corregirTipo()"
+                [disabled]="!tipoCorregido">
+                <i class="fas fa-check"></i> Confirmar
+              </button>
+              <button 
+                class="btn btn-outline-danger" 
+                type="button" 
+                (click)="cancelarEdicion()">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Botón para nueva consulta -->
+      <div class="mt-3" *ngIf="tipoIngreso">
+        <button class="btn btn-outline-primary" (click)="limpiarFormulario()">
+          <i class="fas fa-plus-circle"></i> Nueva Consulta
+        </button>
+      </div>
+      
+      <!-- Historial de consultas -->
+      <div class="mt-4" *ngIf="historial.length > 0">
+        <h4>
+          <i class="fas fa-history"></i> Historial de Consultas
+          <span class="badge bg-secondary">{{historial.length}}</span>
+        </h4>
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+              <tr>
+                <th>Concepto</th>
+                <th>Tipo Detectado</th>
+                <th>Tipo Corregido</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of historial">
+                <td>{{item.concepto}}</td>
+                <td>
+                  <span class="badge bg-info">{{item.tipoDetectado}}</span>
+                </td>
+                <td>
+                  <span class="badge bg-success" *ngIf="item.tipoCorregido">
+                    {{item.tipoCorregido}}
+                  </span>
+                  <span class="text-muted" *ngIf="!item.tipoCorregido">-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- tipificador.component.css -->
+<style>
+.container {
+  max-width: 800px;
+  margin: 30px auto;
+}
+
+.card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(135deg, #1e5799 0%, #2989d8 50%, #207cca 51%, #7db9e8 100%);
+}
+
+.badge {
+  font-size: 1em;
+  padding: 8px 12px;
+  margin-left: 8px;
+}
+
+.table-responsive {
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 4px;
+}
+
+.alert {
+  border-left: 5px solid;
+  transition: all 0.3s ease;
+}
+
+.alert-success {
+  border-left-color: #28a745;
+}
+
+.alert-warning {
+  border-left-color: #ffc107;
+}
+
+.btn {
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-control:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+</style>
