@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenador Temático 6º Primaria - Texto Literal</title>
+    <style>
+        :root {
+            --primary: #00695c;
+            --primary-dark: #004d40;
+            --secondary: #ff6f00;
+            --bg: #e0f2f1;
+            --text: #263238;
+            --correct: #c8e6c9;
+            --correct-text: #1b5e20;
+            --incorrect: #ffcdd2;
+            --incorrect-text: #b71c1c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #b2dfdb;
+            padding-bottom: 20px;
+        }
+        
+        h1 { color: var(--primary-dark); margin: 0; font-size: 2.2em; font-weight: 800; }
+        .subtitle { color: var(--primary); font-size: 1.2em; margin-top: 8px; font-weight: 500; }
+
+        /* GLOBAL PROGRESS */
+        .global-stats {
+            background: #f1f8e9;
+            border: 2px solid #c5e1a5;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .global-title { font-weight: bold; color: #33691e; margin-bottom: 10px; font-size: 1.1em; }
+        .global-bar-container {
+            height: 20px;
+            background-color: #dcedc8;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto;
+            max-width: 600px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .global-bar-fill {
+            height: 100%;
+            background-color: #7cb342;
+            width: 0%;
+            transition: width 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        /* MENU INICIAL */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .menu-btn {
+            background: white;
+            border: 2px solid #b2dfdb;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--primary-dark);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            display: flex;
+            flex-direction: column; /* Cambiado a columna para mejor layout */
+            gap: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .menu-btn:hover {
+            background-color: #e0f2f1;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+        
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .menu-status-badge {
+            font-size: 0.85em;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        /* Estados de calificación */
+        .status-pending { background: #eceff1; color: #78909c; }
+        .status-master { background: #c8e6c9; color: #1b5e20; border: 1px solid #81c784; } /* Verde - 100% */
+        .status-expert { background: #fff9c4; color: #fbc02d; border: 1px solid #fdd835; } /* Amarillo - >70% */
+        .status-learner { background: #ffccbc; color: #bf360c; border: 1px solid #ffab91; } /* Rojo - <70% */
+
+        /* JUEGO */
+        #game-interface { display: none; }
+
+        .topic-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: var(--primary-dark);
+            font-size: 1.3em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .progress-container {
+            background-color: #eceff1;
+            height: 12px;
+            border-radius: 6px;
+            margin-bottom: 35px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary);
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .q-text {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin: 0 0 30px 0;
+            line-height: 1.4;
+            color: #263238;
+        }
+
+        /* CAJA DE RESPUESTA ACTIVA */
+        .recall-box {
+            background-color: #fff8e1;
+            border: 2px dashed var(--secondary);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ffe0b2;
+            border-radius: 10px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+            font-size: 1.2em;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        textarea:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(255,111,0,0.1); }
+
+        .btn-reveal {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(255,111,0,0.2);
+        }
+        .btn-reveal:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(255,111,0,0.3); }
+
+        /* OPCIONES */
+        .options-grid {
+            display: none;
+            gap: 15px;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .opt-btn {
+            padding: 20px 25px;
+            background: white;
+            border: 2px solid #cfd8dc;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1em;
+            text-align: left;
+            transition: all 0.2s;
+            position: relative;
+            color: #455a64;
+        }
+        .opt-btn:hover:not([disabled]) {
+            border-color: var(--primary);
+            background-color: #e0f2f1;
+            color: var(--primary-dark);
+        }
+        .opt-btn.correct {
+            background-color: var(--correct);
+            border-color: var(--correct-text);
+            color: var(--correct-text);
+            font-weight: bold;
+        }
+        .opt-btn.incorrect {
+            background-color: var(--incorrect);
+            border-color: var(--incorrect-text);
+            color: var(--incorrect-text);
+            opacity: 0.8;
+        }
+
+        /* EXPLICACIÓN */
+        .explanation {
+            margin-top: 35px;
+            padding: 30px;
+            background-color: #e3f2fd;
+            border-left: 8px solid #1565c0;
+            border-radius: 0 15px 15px 0;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .book-text {
+            font-family: 'Georgia', serif;
+            font-style: italic;
+            color: #37474f;
+            background-color: rgba(255,255,255,0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #90caf9;
+            line-height: 1.8;
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+        .ref-tag {
+            display: block;
+            font-size: 0.85em;
+            color: #1565c0;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .btn-next {
+            background-color: var(--primary-dark);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            float: right;
+            margin-top: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            font-weight: bold;
+        }
+        .btn-next:hover { background-color: #003d33; }
+
+        /* MODAL RESULTADOS */
+        .modal { text-align: center; padding: 20px; display: none; animation: fadeIn 0.5s; }
+        .score-circle {
+            width: 140px; height: 140px;
+            background: var(--primary); color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3em; font-weight: 800;
+            margin: 30px auto;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🌍 Repaso Temario 6º</h1>
+        <div class="subtitle">Estudio Literal e Intensivo (15+ preguntas/tema)</div>
+    </header>
+
+    <!-- MENÚ PRINCIPAL -->
+    <div id="main-menu">
+        
+        <!-- BARRA DE PROGRESO GLOBAL -->
+        <div class="global-stats">
+            <div class="global-title">Progreso Total del Curso</div>
+            <div class="global-bar-container">
+                <div class="global-bar-fill" id="global-bar-fill">0%</div>
+            </div>
+            <div id="global-text" style="margin-top:10px; font-size:0.9em; color:#558b2f;"></div>
+        </div>
+
+        <p style="text-align:center; margin-bottom:20px; font-size:1.2em;">Selecciona un tema para empezar:</p>
+        
+        <div class="menu-grid" id="menu-grid">
+            <!-- Botones generados por JS -->
+        </div>
+        
+        <div style="text-align:center; margin-top:40px;">
+            <button onclick="resetAll()" style="background:none; border:none; color:#90a4ae; cursor:pointer; text-decoration:underline; font-size: 0.9em;">🗑️ Borrar todo el progreso</button>
+        </div>
+    </div>
+
+    <!-- INTERFAZ DE PREGUNTAS -->
+    <div id="game-interface">
+        <div class="topic-indicator">
+            <span id="current-topic-title">Tema</span>
+            <span id="q-counter">1/10</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <div id="question-area">
+            <div class="q-text" id="q-text">Pregunta...</div>
+            
+            <div class="recall-box">
+                <label style="display:block; color:#ef6c00; font-weight:bold; margin-bottom:10px;">🧠 Tu Respuesta:</label>
+                <textarea id="recall-input" placeholder="Escribe aquí antes de comprobar..."></textarea>
+                <button class="btn-reveal" id="btn-reveal" onclick="revealOptions()">Comprobar / Ver Opciones</button>
+            </div>
+
+            <div class="options-grid" id="options-grid">
+                <!-- Opciones generadas por JS -->
+            </div>
+
+            <div class="explanation" id="explanation-box">
+                <strong style="color:#1565c0; font-size: 1.1em;">💡 Respuesta Correcta:</strong>
+                <div id="correct-answer-text" style="margin-bottom:20px; font-size: 1.1em; font-weight: 500;"></div>
+                
+                <strong style="color:#1565c0; font-size:0.9em; text-transform:uppercase; letter-spacing: 1px;">📖 Texto Exacto del Libro:</strong>
+                <div class="book-text" id="book-text"></div>
+                
+                <button class="btn-next" onclick="nextQuestion()">Siguiente ➡</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULTADO TEMA -->
+    <div id="result-modal" class="modal">
+        <h2 style="color:var(--primary-dark); font-size: 2em;">¡Tema Completado!</h2>
+        <div class="score-circle" id="topic-score">10/10</div>
+        <p id="feedback-msg" style="font-size:1.3em; margin-bottom:30px; color: #546e7a;">Mensaje...</p>
+        <button class="btn-next" onclick="showMenu()" style="float:none;">Volver al Menú</button>
+    </div>
+
+</div>
+
+<script>
+    // --- BASE DE DATOS CON TEXTO 100% LITERAL Y REFERENCIADO ---
+    const syllabus = {
+        "universo": {
+            title: "1. El Universo",
+            questions: [
+                { q: "Definición exacta de Universo:", options: ["Conjunto de estrellas.", "Toda la materia y toda la energía que existen, así como el espacio que las contiene.", "El Sistema Solar."], correct: 1, text: "<b>[REF: El Universo]</b><br>El universo es toda la materia y toda la energía que existen, así como el espacio que las contiene. En el universo, la materia la forman estrellas, planetas, asteroides, cometas y otros cuerpos celestes." },
+                { q: "Origen del universo (Big Bang):", options: ["Explotó una masa muy densa y pesada.", "Siempre estuvo ahí.", "Se creó poco a poco."], correct: 0, text: "<b>[REF: El Universo - El origen del universo]</b><br>La mayoría de las investigaciones científicas concluyen que el universo se originó tras una gran explosión llamada Big Bang, que pudo ocurrir hace miles de millones de años. Consideran que el universo era una enorme masa de materia muy densa y pesada que explotó y empezó a lanzar fragmentos a su alrededor." },
+                { q: "¿Qué ocurre tras la explosión del Big Bang?", options: ["El universo se contrae.", "El universo aumenta de tamaño (continua expansión).", "Se queda igual."], correct: 1, text: "<b>[REF: El Universo - El origen del universo]</b><br>De estos fragmentos nacieron las galaxias y los astros, como las estrellas, que siguen alejándose. A partir de esta explosión, el universo aumenta de tamaño, es decir, está en continua expansión." },
+                { q: "Definición de Galaxias:", options: ["Agrupaciones de millones de estrellas junto con planetas, polvo y gas, unidos por gravedad.", "Conjuntos de cometas.", "Nubes."], correct: 0, text: "<b>[REF: El Universo - Las Galaxias]</b><br>Las agrupaciones de millones de estrellas junto con planetas, polvo y gas, unidos por la fuerza de la gravedad, constituyen las galaxias." },
+                { q: "Definición de Estrellas:", options: ["Rocas con luz.", "Enormes masas gaseosas que liberan gran cantidad de energía en forma de luz y calor.", "Planetas."], correct: 1, text: "<b>[REF: El Universo - Las Galaxias]</b><br>Las estrellas son enormes masas gaseosas que liberan gran cantidad de energía. Esta energía se emite en forma de luz y calor; por eso, las estrellas brillan y pueden verse, aunque estén muy alejadas." },
+                { q: "Tipos de galaxias y la nuestra:", options: ["Irregulares, elípticas y espirales. La nuestra es la Vía Láctea (espiral).", "Redondas y planas.", "Cuadradas."], correct: 0, text: "<b>[REF: El Universo - Las Galaxias]</b><br>Por su forma, las galaxias se clasifican en irregulares, elípticas y espirales. La galaxia en la que se encuentra el Sol es la Vía Láctea. La Vía Láctea tiene forma de espiral." },
+                { q: "Exploración Espacial:", options: ["Objetivo: estudiar el espacio y los astros.", "Viajar rápido.", "Ver alienígenas."], correct: 0, text: "<b>[REF: El Universo - La exploración espacial]</b><br>La exploración espacial. Tiene como objetivo estudiar el espacio y los astros. Para comprender mejor el universo, se utilizan conocimientos de astronomía junto con la tecnología espacial." },
+                { q: "Basura Espacial (Definición completa):", options: ["Restos de naves y satélites artificiales que orbitan la Tierra.", "Polvo.", "Meteoritos."], correct: 0, text: "<b>[REF: El Universo - La exploración espacial]</b><br>Basura espacial. Es la denominación que reciben los restos de naves, satélites artificiales y otros objetos espaciales que orbitan alrededor de la Tierra. Hay cientos de miles de restos que están flotando alrededor del planeta y pueden llegar a ser un peligro, ya que es posible que choquen con otros artefactos; se corre el riesgo, incluso, de que caigan sobre la Tierra." },
+                { q: "¿Qué compone la materia en el universo?", options: ["Solo estrellas.", "Estrellas, planetas, asteroides, cometas y otros cuerpos celestes.", "Gas solamente."], correct: 1, text: "<b>[REF: El Universo]</b><br>En el universo, la materia la forman estrellas, planetas, asteroides, cometas y otros cuerpos celestes." },
+                { q: "¿Cuándo pudo ocurrir el Big Bang?", options: ["Hace miles de millones de años.", "Hace un siglo.", "Ayer."], correct: 0, text: "<b>[REF: El Universo - El origen del universo]</b><br>...tras una gran explosión llamada Big Bang, que pudo ocurrir hace miles de millones de años." },
+                { q: "¿Cómo era el universo antes de explotar?", options: ["Vacío.", "Una enorme masa de materia muy densa y pesada.", "Luz pura."], correct: 1, text: "<b>[REF: El Universo - El origen del universo]</b><br>Consideran que el universo era una enorme masa de materia muy densa y pesada que explotó..." },
+                { q: "¿Qué nació de los fragmentos?", options: ["Solo planetas.", "Las galaxias y los astros, como las estrellas.", "Nada."], correct: 1, text: "<b>[REF: El Universo - El origen del universo]</b><br>De estos fragmentos nacieron las galaxias y los astros, como las estrellas, que siguen alejándose." },
+                { q: "¿Qué fuerza une los componentes de una galaxia?", options: ["Magnetismo.", "La fuerza de la gravedad.", "Electricidad."], correct: 1, text: "<b>[REF: El Universo - Las Galaxias]</b><br>Las agrupaciones de millones de estrellas junto con planetas, polvo y gas, unidos por la fuerza de la gravedad, constituyen las galaxias." },
+                { q: "¿Por qué brillan las estrellas?", options: ["Reflejan luz.", "Liberan energía en forma de luz y calor.", "Tienen pilas."], correct: 1, text: "<b>[REF: El Universo - Las Galaxias]</b><br>Esta energía se emite en forma de luz y calor; por eso, las estrellas brillan y pueden verse, aunque estén muy alejadas." },
+                { q: "¿Cómo se llama la galaxia del Sol?", options: ["Andrómeda.", "Vía Láctea.", "Orión."], correct: 1, text: "<b>[REF: El Universo - Las Galaxias]</b><br>La galaxia en la que se encuentra el Sol es la Vía Láctea." }
+            ]
+        },
+        "sistema_solar": {
+            title: "2. El Sistema Solar",
+            questions: [
+                { q: "Componentes del Sistema Solar:", options: ["Sol y planetas.", "El Sol y el conjunto de cuerpos celestes que giran a su alrededor.", "Estrellas."], correct: 1, text: "<b>[REF: El Sistema Solar]</b><br>El sistema solar está formado por el Sol y el conjunto de cuerpos celestes que giran a su alrededor: planetas, asteroides, cometas y satélites." },
+                { q: "El Sol:", options: ["Un planeta grande.", "El único astro luminoso del sistema solar, estrella joven y de tamaño medio.", "Un cometa."], correct: 1, text: "<b>[REF: El Sistema Solar]</b><br>El Sol, único astro luminoso del sistema solar, es una estrella joven y de tamaño medio compuesta por una gran cantidad de gases a una temperatura muy elevada. Su energía se recibe en forma de luz y calor." },
+                { q: "Definición de Planetas:", options: ["Astros con luz propia.", "Astros que no tienen luz propia y giran alrededor de una estrella.", "Estrellas."], correct: 1, text: "<b>[REF: El Sistema Solar]</b><br>Los planetas son astros que no tienen luz propia y giran alrededor de una estrella, recorriendo una trayectoria que se denomina órbita. En el sistema solar hay ocho planetas." },
+                { q: "Planetas Interiores:", options: ["Mercurio, Venus, Tierra, Marte (Tamaño medio, rocosos).", "Júpiter, Saturno.", "Grandes y gaseosos."], correct: 0, text: "<b>[REF: El Sistema Solar - Planetas interiores]</b><br>Planetas interiores: Mercurio, Venus, Tierra y Marte. Tienen un tamaño medio y son rocosos." },
+                { q: "Planetas Exteriores:", options: ["Marte y Júpiter.", "Júpiter, Saturno, Urano, Neptuno (Gran tamaño, gaseosos).", "Pequeños y rocosos."], correct: 1, text: "<b>[REF: El Sistema Solar - Planetas exteriores]</b><br>Planetas exteriores: Júpiter, Saturno, Urano y Neptuno. Tienen un gran tamaño y están constituidos principalmente por gases." },
+                { q: "Definición de Asteroides:", options: ["Objetos rocosos de tamaño muy variable (Cinturón entre Marte y Júpiter).", "Estrellas.", "Hielo."], correct: 0, text: "<b>[REF: El Sistema Solar - Asteroides]</b><br>Los asteroides son objetos rocosos de tamaño muy variable. La mayoría de ellos se encuentra en una zona localizada entre Marte y Júpiter, denominada cinturón de asteroides." },
+                { q: "Definición de Cometas:", options: ["Hielo y rocas. Al acercarse al Sol, el hielo se evapora y forma cola.", "Rocas solas.", "Satélites."], correct: 0, text: "<b>[REF: El Sistema Solar - Cometas]</b><br>Los cometas son cuerpos celestes de pequeño tamaño formados por hielo y rocas que orbitan alrededor del Sol. Al acercarse a él, el hielo se evapora y forma su característica cola." },
+                { q: "Definición de Satélites:", options: ["Giran alrededor de las estrellas.", "Objetos que giran alrededor de un planeta.", "Naves."], correct: 1, text: "<b>[REF: El Sistema Solar - Satélites]</b><br>Los satélites orbitan alrededor de los planetas. Hay planetas sin satélites, como Mercurio, y otros que cuentan con más de diez, como Urano. El satélite de la Tierra es la Luna." },
+                { q: "Movimiento de Rotación:", options: ["Gira sobre eje imaginario. Tarda 24h. Origina día y noche.", "Gira al Sol. 365 días.", "Tarda 12h."], correct: 0, text: "<b>[REF: Los Movimientos de la Tierra]</b><br>Movimiento de rotación. La Tierra gira sobre sí misma alrededor de un eje imaginario. Tarda 24 horas en dar una vuelta completa. La rotación origina el día y la noche." },
+                { q: "Movimiento de Traslación:", options: ["Órbita elíptica al Sol. Tarda 365 días y unas seis horas. Estaciones.", "Gira sobre sí misma.", "24 horas."], correct: 0, text: "<b>[REF: Los Movimientos de la Tierra]</b><br>Movimiento de traslación. La Tierra describe una órbita elíptica alrededor del Sol. Tarda 365 días y unas seis horas en dar una vuelta completa. Esto da lugar a las cuatro estaciones del año." },
+                { q: "¿De qué está compuesto el Sol?", options: ["Roca.", "Gran cantidad de gases a una temperatura muy elevada.", "Agua."], correct: 1, text: "<b>[REF: El Sistema Solar]</b><br>...compuesta por una gran cantidad de gases a una temperatura muy elevada." },
+                { q: "¿Cómo se llama la trayectoria de los planetas?", options: ["Camino.", "Órbita.", "Ruta."], correct: 1, text: "<b>[REF: El Sistema Solar]</b><br>...recorriendo una trayectoria que se denomina órbita." },
+                { q: "¿Cuántos planetas hay?", options: ["Siete.", "Ocho.", "Nueve."], correct: 1, text: "<b>[REF: El Sistema Solar]</b><br>En el sistema solar hay ocho planetas." },
+                { q: "¿Qué planeta no tiene satélites?", options: ["La Tierra.", "Mercurio.", "Urano."], correct: 1, text: "<b>[REF: El Sistema Solar - Satélites]</b><br>Hay planetas sin satélites, como Mercurio..." },
+                { q: "¿Qué planeta tiene más de diez satélites?", options: ["Marte.", "Urano.", "Venus."], correct: 1, text: "<b>[REF: El Sistema Solar - Satélites]</b><br>...y otros que cuentan con más de diez, como Urano." }
+            ]
+        },
+        "tierra": {
+            title: "3. La Tierra y Movimientos",
+            questions: [
+                { q: "Forma de la Tierra:", options: ["Esférica perfecta.", "Casi esférica, ligeramente achatada por los polos.", "Plana."], correct: 1, text: "<b>[REF: La Tierra]</b><br>La Tierra tiene una forma casi esférica, ya que está ligeramente achatada por los polos. Es el único planeta en el que se ha encontrado vida." },
+                { q: "Condición de vida (Sol):", options: ["Estar muy cerca.", "Su distancia permite temperaturas moderadas.", "Estar muy lejos."], correct: 1, text: "<b>[REF: La Tierra]</b><br>Su distancia respecto al Sol, que permite que las temperaturas del planeta sean moderadas." },
+                { q: "Condición de vida (Sustancia):", options: ["Existencia de rocas.", "Existencia de agua, imprescindible.", "Existencia de oro."], correct: 1, text: "<b>[REF: La Tierra]</b><br>La existencia de agua, una sustancia imprescindible para la vida." },
+                { q: "Condición de vida (Gas):", options: ["Atmósfera de hidrógeno.", "Atmósfera rica en oxígeno.", "Atmósfera de helio."], correct: 1, text: "<b>[REF: La Tierra]</b><br>La presencia de una atmósfera rica en oxígeno, un gas necesario para los procesos vitales de los seres vivos." },
+                { q: "Definición Rotación:", options: ["Giro alrededor del Sol.", "La Tierra gira sobre sí misma alrededor de un eje imaginario.", "Giro de la Luna."], correct: 1, text: "<b>[REF: Los Movimientos de la Tierra]</b><br>Movimiento de rotación. La Tierra gira sobre sí misma alrededor de un eje imaginario." },
+                { q: "Duración Rotación:", options: ["365 días.", "24 horas.", "12 horas."], correct: 1, text: "<b>[REF: Los Movimientos de la Tierra]</b><br>Tarda 24 horas en dar una vuelta completa." },
+                { q: "Consecuencia Rotación:", options: ["Las estaciones.", "El día y la noche.", "Las mareas."], correct: 1, text: "<b>[REF: Los Movimientos de la Tierra]</b><br>La rotación origina el día y la noche." },
+                { q: "Definición Traslación:", options: ["Giro sobre sí misma.", "La Tierra describe una órbita elíptica alrededor del Sol.", "Giro de la galaxia."], correct: 1, text: "<b>[REF: Los Movimientos de la Tierra]</b><br>Movimiento de traslación. La Tierra describe una órbita elíptica alrededor del Sol." },
+                { q: "Duración Traslación:", options: ["365 días exactos.", "365 días y unas seis horas.", "24 horas."], correct: 1, text: "<b>[REF: Los Movimientos de la Tierra]</b><br>Tarda 365 días y unas seis horas en dar una vuelta completa." },
+                { q: "Consecuencia Traslación:", options: ["Día y noche.", "Las cuatro estaciones del año.", "Los eclipses."], correct: 1, text: "<b>[REF: Los Movimientos de la Tierra]</b><br>Esto da lugar a las cuatro estaciones del año." },
+                { q: "¿Qué es el eje imaginario?", options: ["Una línea física.", "El eje sobre el que gira la Tierra en la rotación.", "El ecuador."], correct: 1, text: "<b>[REF: Los Movimientos de la Tierra]</b><br>La Tierra gira sobre sí misma alrededor de un eje imaginario." },
+                { q: "Tipo de órbita en la traslación:", options: ["Circular.", "Elíptica.", "Irregular."], correct: 1, text: "<b>[REF: Los Movimientos de la Tierra]</b><br>La Tierra describe una órbita elíptica alrededor del Sol." },
+                { q: "¿Por qué las temperaturas son moderadas?", options: ["Por el núcleo.", "Por su distancia respecto al Sol.", "Por las nubes."], correct: 1, text: "<b>[REF: La Tierra]</b><br>Su distancia respecto al Sol, que permite que las temperaturas del planeta sean moderadas." },
+                { q: "¿Para qué sirve el oxígeno?", options: ["Para volar.", "Necesario para los procesos vitales de los seres vivos.", "Para enfriar."], correct: 1, text: "<b>[REF: La Tierra]</b><br>...oxígeno, un gas necesario para los procesos vitales de los seres vivos." },
+                { q: "¿Se ha encontrado vida en otros planetas?", options: ["Sí.", "No, la Tierra es el único.", "No se sabe."], correct: 1, text: "<b>[REF: La Tierra]</b><br>Es el único planeta en el que se ha encontrado vida." }
+            ]
+        },
+        "geosfera": {
+            title: "4. La Geosfera",
+            questions: [
+                { q: "Definición de Geosfera:", options: ["El aire.", "Los materiales sólidos de la Tierra.", "El agua."], correct: 1, text: "<b>[REF: La Geosfera]</b><br>Los materiales sólidos de la Tierra forman la geosfera, que se divide en: corteza, manto y núcleo." },
+                { q: "La Corteza:", options: ["Capa más externa y delgada. Compuesta por rocas.", "Capa media.", "Hierro y Níquel."], correct: 0, text: "<b>[REF: La Geosfera]</b><br>La corteza es la capa más externa y delgada. En ella se encuentra el suelo, donde se desarrolla la vida. Está compuesta por rocas e integra los continentes, las islas y el fondo de océanos y mares." },
+                { q: "Tipos de Corteza:", options: ["Continental y Oceánica.", "Norte y Sur.", "Dura y Blanda."], correct: 0, text: "<b>[REF: La Geosfera]</b><br>Se pueden diferenciar la corteza continental, que forma los continentes y las islas, y la corteza oceánica, que incluye el fondo de los océanos y los mares." },
+                { q: "El Manto:", options: ["Intermedia y más gruesa. Roca sólida que se va fundiendo.", "Líquida.", "Fría."], correct: 0, text: "<b>[REF: La Geosfera]</b><br>El manto es la capa intermedia y más gruesa. Está integrado por roca sólida que se va fundiendo a medida que se acerca al interior debido a las altas temperaturas." },
+                { q: "El Núcleo:", options: ["Interna. Metales (Hierro/Níquel).", "Roca fría.", "Gas."], correct: 0, text: "<b>[REF: La Geosfera]</b><br>El núcleo es la capa más interna de la Tierra y está formado por metales como el hierro y el níquel. Se pueden diferenciar el núcleo externo, que se mantiene en estado líquido, y el núcleo interno, que es sólido." },
+                { q: "Terremotos:", options: ["Sacudidas de la corteza terrestre provocadas por fuerzas procedentes del interior.", "Viento.", "Olas."], correct: 0, text: "<b>[REF: La Dinámica Geológica]</b><br>Los terremotos o seísmos son sacudidas de la corteza terrestre provocadas por fuerzas procedentes del interior de la Tierra." },
+                { q: "Hipocentro:", options: ["Superficie.", "Lugar del interior donde se produce el terremoto.", "Final."], correct: 1, text: "<b>[REF: La Dinámica Geológica]</b><br>El hipocentro es el lugar del interior de la Tierra donde se produce el terremoto." },
+                { q: "Epicentro:", options: ["Interior.", "Lugar de la superficie donde se percibe con más intensidad.", "Origen."], correct: 1, text: "<b>[REF: La Dinámica Geológica]</b><br>El epicentro es el lugar de la superficie terrestre donde se percibe el terremoto con más intensidad." },
+                { q: "Maremoto:", options: ["Terremoto en tierra.", "Seísmo en el mar que genera tsunamis.", "Tormenta."], correct: 1, text: "<b>[REF: La Dinámica Geológica]</b><br>Si el seísmo se produce en el mar, se denomina maremoto y puede generar olas gigantes, que reciben el nombre de tsunamis." },
+                { q: "Volcán (Origen):", options: ["Magma alcanza superficie por grieta.", "Montaña crece.", "Fuego."], correct: 0, text: "<b>[REF: La Dinámica Geológica]</b><br>En ocasiones, las altas temperaturas del interior de la Tierra provocan que las rocas se fundan, generando el magma. Si el magma alcanza la superficie a través de alguna grieta se forma un volcán." },
+                { q: "Partes Volcán:", options: ["Chimenea, Lava, Cono, Cráter.", "Tubo, Fuego, Montaña, Boca.", "Entrada, Salida."], correct: 0, text: "<b>[REF: La Dinámica Geológica]</b><br>La grieta por la que asciende el magma se llama chimenea. La lava es el magma líquido arrojado por el volcán. La lava y otros materiales se depositan en el exterior formando el cono volcánico. Salen a través de una abertura denominada cráter." },
+                { q: "Causas Contaminación Suelo:", options: ["Industrias, Agricultura, Vertidos.", "Lluvia.", "Viento."], correct: 0, text: "<b>[REF: La Contaminación del Suelo]</b><br>Acciones inaceptables en industrias... Uso excesivo en la agricultura de productos químicos... Vertidos accidentales..." },
+                { q: "Efectos Contaminación Suelo:", options: ["Filtración al agua, menor fertilidad, cadena alimentaria.", "Calor.", "Terremotos."], correct: 0, text: "<b>[REF: La Contaminación del Suelo]</b><br>Los productos químicos pueden filtrarse al agua y contaminar así ríos y mares. Se reduce la fertilidad de la tierra... Estos componentes pueden llegar a los seres humanos a través de la cadena alimentaria y perjudicar su salud." },
+                { q: "¿Qué integra la corteza?", options: ["Continentes, islas y fondo de océanos.", "Solo tierra firme.", "Solo mar."], correct: 0, text: "<b>[REF: La Geosfera]</b><br>Integra los continentes, las islas y el fondo de océanos y mares." },
+                { q: "¿Dónde se encuentra el suelo?", options: ["En la corteza.", "En el manto.", "En el núcleo."], correct: 0, text: "<b>[REF: La Geosfera]</b><br>En ella [la corteza] se encuentra el suelo, donde se desarrolla la vida." }
+            ]
+        },
+        "atmosfera": {
+            title: "5. La Atmósfera",
+            questions: [
+                { q: "Definición Atmósfera:", options: ["Capa de gases que envuelve y protege la Tierra.", "Nubes.", "Aire."], correct: 0, text: "<b>[REF: La Atmósfera]</b><br>La atmósfera es la capa de gases que envuelve y protege la Tierra. Está formada principalmente por nitrógeno y por oxígeno, además de vapor de agua y otros gases presentes en pequeñas cantidades." },
+                { q: "Exosfera:", options: ["Capa más cercana.", "Capa más lejana, sin apenas gases.", "Capa media."], correct: 1, text: "<b>[REF: La Atmósfera - Capas]</b><br>Exosfera. Es la capa más lejana, sin apenas gases." },
+                { q: "Termosfera (Temperatura):", options: ["Más fría.", "Más cálida.", "Moderada."], correct: 1, text: "<b>[REF: La Atmósfera - Capas]</b><br>Termosfera. Es la capa más cálida. En ella se producen las auroras boreales." },
+                { q: "Mesosfera:", options: ["Más cálida.", "Más fría (-140ºC). Se desintegran meteoritos.", "20ºC."], correct: 1, text: "<b>[REF: La Atmósfera - Capas]</b><br>Mesosfera. Es la capa más fría de la atmósfera. Su temperatura puede llegar hasta los -140 °C. En ella se desintegran los meteoritos y asteroides que alcanzan la Tierra procedentes del espacio." },
+                { q: "Estratosfera:", options: ["Capa de ozono (filtro UV). Vuelan globos.", "Nubes.", "Satélites."], correct: 0, text: "<b>[REF: La Atmósfera - Capas]</b><br>Estratosfera. Aquí se sitúa la capa de ozono, que actúa como filtro de las radiaciones solares ultravioleta, es decir, de las radiaciones perjudiciales para los seres vivos. En esta capa es donde vuelan los globos aerostáticos." },
+                { q: "Troposfera:", options: ["Más lejana.", "Más cercana (20km). Vida y clima.", "En medio."], correct: 1, text: "<b>[REF: La Atmósfera - Capas]</b><br>Troposfera. Es la capa más cercana a la superficie de la Tierra y se eleva hasta aproximadamente los 20 km. En ella se desarrollan los seres vivos... tienen lugar los fenómenos meteorológicos, como el viento o la lluvia." },
+                { q: "Deterioro: Temperatura media:", options: ["Está bajando.", "Está subiendo por el efecto invernadero.", "Igual."], correct: 1, text: "<b>[REF: La Atmósfera - Deterioro]</b><br>Está subiendo la temperatura media del planeta porque se está intensificando el efecto invernadero (los gases de la atmósfera retienen parte del calor que irradia el Sol), produciendo más gases que impiden que el calor salga." },
+                { q: "Deterioro: Capa de Ozono:", options: ["Se fortalece.", "Se debilita por sustancias químicas.", "Desaparece."], correct: 1, text: "<b>[REF: La Atmósfera - Deterioro]</b><br>Se está debilitando la capa de ozono por la acción de ciertas sustancias químicas provocando mayor radiación ultravioleta sobre los seres vivos." },
+                { q: "Gases principales de la atmósfera:", options: ["Nitrógeno y oxígeno.", "Dióxido de carbono.", "Hidrógeno."], correct: 0, text: "<b>[REF: La Atmósfera]</b><br>Está formada principalmente por nitrógeno y por oxígeno." },
+                { q: "¿Qué ocurre en la Mesosfera?", options: ["Auroras.", "Se desintegran meteoritos.", "Vuelan aviones."], correct: 1, text: "<b>[REF: La Atmósfera - Capas]</b><br>En ella se desintegran los meteoritos y asteroides." },
+                { q: "¿Para qué sirve la capa de ozono?", options: ["Filtro de radiaciones ultravioleta.", "Para respirar.", "Para calentar."], correct: 0, text: "<b>[REF: La Atmósfera - Capas]</b><br>Actúa como filtro de las radiaciones solares ultravioleta, es decir, de las radiaciones perjudiciales para los seres vivos." },
+                { q: "Altura Troposfera:", options: ["100 km.", "20 km.", "5 km."], correct: 1, text: "<b>[REF: La Atmósfera - Capas]</b><br>Se eleva hasta aproximadamente los 20 km." },
+                { q: "¿Qué ocurre en la Troposfera?", options: ["Nada.", "Fenómenos meteorológicos (lluvia, viento).", "Auroras."], correct: 1, text: "<b>[REF: La Atmósfera - Capas]</b><br>En ella se desarrollan los seres vivos... tienen lugar los fenómenos meteorológicos." },
+                { q: "¿Por qué sube la temperatura?", options: ["Por el sol.", "Por la intensificación del efecto invernadero.", "Por los volcanes."], correct: 1, text: "<b>[REF: La Atmósfera - Deterioro]</b><br>Está subiendo la temperatura media del planeta porque se está intensificando el efecto invernadero." },
+                { q: "¿Qué hace el efecto invernadero?", options: ["Enfría.", "Retiene calor del Sol.", "Crea nubes."], correct: 1, text: "<b>[REF: La Atmósfera - Deterioro]</b><br>Los gases de la atmósfera retienen parte del calor que irradia el Sol." }
+            ]
+        },
+        "hidrosfera": {
+            title: "6. La Hidrosfera",
+            questions: [
+                { q: "Definición Hidrosfera:", options: ["Capa de gases.", "Capa de agua que recubre el 70% de la superficie.", "Suelo."], correct: 1, text: "<b>[REF: La Hidrosfera]</b><br>La hidrosfera es la capa de agua que recubre aproximadamente el 70 % de la superficie terrestre." },
+                { q: "Porcentaje Agua Salada:", options: ["50%.", "97%.", "3%."], correct: 1, text: "<b>[REF: La Hidrosfera]</b><br>El 97 % del agua de la Tierra es salada." },
+                { q: "Ubicación mayoritaria agua dulce:", options: ["Ríos.", "Hielo en glaciares o agua subterránea.", "Lagos."], correct: 1, text: "<b>[REF: La Hidrosfera]</b><br>Del 3 % restante, la mayor parte se encuentra en forma de hielo en los glaciares o como agua subterránea de difícil acceso." },
+                { q: "Agua dulce disponible:", options: ["3%.", "Menos del 1%.", "100%."], correct: 1, text: "<b>[REF: La Hidrosfera]</b><br>Solamente está disponible para el consumo y los ecosistemas menos del 1 % del agua dulce." },
+                { q: "Ciclo del Agua - Paso 1:", options: ["Lluvia.", "Sol calienta agua y se evapora.", "Filtración."], correct: 1, text: "<b>[REF: La Hidrosfera - Ciclo]</b><br>1 El sol calienta el agua, y parte de ella se evapora." },
+                { q: "Ciclo del Agua - Paso 2:", options: ["Vapor se condensa y origina nubes.", "Cae nieve.", "Agua corre."], correct: 0, text: "<b>[REF: La Hidrosfera - Ciclo]</b><br>2 El vapor de agua se condensa y origina las nubes." },
+                { q: "Ciclo del Agua - Paso 3:", options: ["Evaporación.", "Precipitaciones (lluvia, nieve, granizo).", "Nubes."], correct: 1, text: "<b>[REF: La Hidrosfera - Ciclo]</b><br>3 Se producen precipitaciones en forma de lluvia, nieve o granizo." },
+                { q: "Ciclo del Agua - Paso 4:", options: ["Sube al cielo.", "Fluye por ríos y se filtra (acuíferos/mar).", "Se congela."], correct: 1, text: "<b>[REF: La Hidrosfera - Ciclo]</b><br>4 El agua fluye por los ríos y se filtra hasta llegar a los acuíferos y al mar." },
+                { q: "¿Por qué se llama Planeta Azul?", options: ["Por el cielo.", "Por la hidrosfera (capa de agua).", "Es pintura."], correct: 1, text: "<b>[REF: La Hidrosfera]</b><br>Por este motivo [la hidrosfera recubre el 70%], se conoce al planeta Tierra como planeta azul." },
+                { q: "¿Dónde está el agua salada?", options: ["Ríos.", "Mares y océanos.", "Glaciares."], correct: 1, text: "<b>[REF: La Geosfera]</b><br>(Deducido del contexto general, aunque la página de Hidrosfera solo dice 'El 97% es salada')." },
+                { q: "¿Es accesible toda el agua dulce?", options: ["Sí.", "No, la mayoría es hielo o subterránea.", "No hay agua dulce."], correct: 1, text: "<b>[REF: La Hidrosfera]</b><br>La mayor parte se encuentra en forma de hielo en los glaciares o como agua subterránea de difícil acceso." },
+                { q: "¿Qué pasa cuando el sol calienta el agua?", options: ["Se congela.", "Se evapora.", "Se ensucia."], correct: 1, text: "<b>[REF: La Hidrosfera - Ciclo]</b><br>El sol calienta el agua, y parte de ella se evapora." },
+                { q: "¿Qué origina las nubes?", options: ["Humo.", "La condensación del vapor de agua.", "Viento."], correct: 1, text: "<b>[REF: La Hidrosfera - Ciclo]</b><br>El vapor de agua se condensa y origina las nubes." },
+                { q: "Formas de precipitación:", options: ["Solo agua.", "Lluvia, nieve o granizo.", "Vapor."], correct: 1, text: "<b>[REF: La Hidrosfera - Ciclo]</b><br>Se producen precipitaciones en forma de lluvia, nieve o granizo." },
+                { q: "¿A dónde va el agua de los ríos?", options: ["Al cielo.", "Se filtra, acuíferos y mar.", "Desaparece."], correct: 1, text: "<b>[REF: La Hidrosfera - Ciclo]</b><br>El agua fluye por los ríos y se filtra hasta llegar a los acuíferos y al mar." }
+            ]
+        },
+        "clima": {
+            title: "7. Clima y Zonas Climáticas",
+            questions: [
+                { q: "Definición Tiempo Atmosférico:", options: ["Condiciones en momento y lugar dados.", "Promedio de años.", "Lluvia."], correct: 0, text: "<b>[REF: El Clima]</b><br>El tiempo atmosférico engloba el conjunto de condiciones que definen el estado de la atmósfera en un momento y un lugar dados." },
+                { q: "Factores del Tiempo:", options: ["Solo sol.", "Temperatura, humedad, viento, precipitaciones y presión.", "Fases lunares."], correct: 1, text: "<b>[REF: El Clima]</b><br>Está determinado por las condiciones de temperatura, humedad, viento, precipitaciones y presión." },
+                { q: "Definición Clima:", options: ["Lo que pasa hoy.", "Tiempo que predomina en un lugar durante un periodo prolongado.", "Pronóstico."], correct: 1, text: "<b>[REF: El Clima]</b><br>El clima es el tiempo atmosférico que predomina en un lugar durante un periodo prolongado." },
+                { q: "Definición Temperatura:", options: ["Calor acumulado en el aire.", "Agua en el aire.", "Peso del aire."], correct: 0, text: "<b>[REF: El Clima]</b><br>La temperatura es la cantidad de calor acumulado en el aire en un lugar." },
+                { q: "Definición Humedad:", options: ["Agua que cae.", "Cantidad de vapor de agua que tiene el aire.", "Aire moviéndose."], correct: 1, text: "<b>[REF: El Clima]</b><br>La humedad atmosférica es la cantidad de vapor de agua que tiene el aire." },
+                { q: "Definición Viento:", options: ["Aire en movimiento.", "Calor.", "Presión."], correct: 0, text: "<b>[REF: El Clima]</b><br>El viento es el aire en movimiento." },
+                { q: "Definición Precipitaciones:", options: ["Nubes.", "Agua que cae de la atmósfera a la superficie.", "Vapor."], correct: 1, text: "<b>[REF: El Clima]</b><br>Las precipitaciones son el agua que cae de la atmósfera a la superficie de la Tierra." },
+                { q: "Definición Presión Atmosférica:", options: ["Calor del sol.", "Peso que ejerce el aire de la atmósfera sobre la superficie.", "Humedad."], correct: 1, text: "<b>[REF: El Clima]</b><br>La presión atmosférica es el peso que ejerce el aire de la atmósfera sobre la superficie terrestre." },
+                { q: "Causa de los fenómenos atmosféricos:", options: ["Cambios en los elementos del clima.", "La luna.", "El mar."], correct: 0, text: "<b>[REF: El Clima]</b><br>Los cambios en estos elementos provocan fenómenos atmosféricos, como la lluvia, la niebla, la nieve o el granizo." },
+                { q: "Ubicación Zona Cálida:", options: ["Polos.", "Cerca del ecuador, entre ambos trópicos.", "Europa."], correct: 1, text: "<b>[REF: Zonas Climáticas]</b><br>Zona cálida. Se encuentra cerca del ecuador, entre ambos trópicos." },
+                { q: "Temperatura Zona Cálida:", options: ["Bajas.", "Altas todo el año.", "Variables."], correct: 1, text: "<b>[REF: Zonas Climáticas]</b><br>Tiene temperaturas altas todo el año." },
+                { q: "Ubicación Zonas Templadas:", options: ["En el ecuador.", "Entre zona cálida y zonas frías.", "En los polos."], correct: 1, text: "<b>[REF: Zonas Climáticas]</b><br>Zonas templadas. Se ubican entre la zona cálida y las zonas frías." },
+                { q: "Hemisferios Zonas Templadas:", options: ["Solo Norte.", "Una en Norte y otra en Sur.", "Solo Sur."], correct: 1, text: "<b>[REF: Zonas Climáticas]</b><br>Hay una zona templada en el hemisferio norte y otra en el hemisferio sur." },
+                { q: "Características Zonas Templadas:", options: ["Siempre calor.", "Alternan cuatro estaciones con diferentes temperaturas.", "Siempre frío."], correct: 1, text: "<b>[REF: Zonas Climáticas]</b><br>Son climas que alternan cuatro estaciones con diferentes temperaturas." },
+                { q: "Ubicación Zonas Frías:", options: ["Entre círculo polar y polo.", "Ecuador.", "Trópicos."], correct: 0, text: "<b>[REF: Zonas Climáticas]</b><br>Zonas frías. Se localizan entre el círculo polar ártico y el polo norte y entre el círculo polar antártico y el polo sur." },
+                { q: "Temperatura Zonas Frías:", options: ["Muy altas.", "Muy bajas.", "Moderadas."], correct: 1, text: "<b>[REF: Zonas Climáticas]</b><br>Son zonas de muy bajas temperaturas." }
+            ]
+        }
+    };
+
+    // --- LÓGICA DE LA APLICACIÓN ---
+    let currentTopicKey = "";
+    let currentQIndex = 0;
+    let score = 0;
+
+    function init() {
+        // GLOBAL PROGRESS CALCULATION
+        let totalQuestionsGlobal = 0;
+        let totalCorrectGlobal = 0;
+
+        for (const key in syllabus) {
+            totalQuestionsGlobal += syllabus[key].questions.length;
+            const saved = localStorage.getItem(`status-${key}`);
+            if (saved) {
+                const [correct, total] = saved.split('/').map(Number);
+                totalCorrectGlobal += correct;
+            }
+        }
+
+        const globalPct = totalQuestionsGlobal > 0 ? Math.round((totalCorrectGlobal / totalQuestionsGlobal) * 100) : 0;
+        document.getElementById('global-bar-fill').style.width = `${globalPct}%`;
+        document.getElementById('global-bar-fill').innerText = `${globalPct}%`;
+        document.getElementById('global-text').innerText = `${totalCorrectGlobal} de ${totalQuestionsGlobal} preguntas acertadas`;
+
+        // MENU GENERATION
+        const grid = document.getElementById('menu-grid');
+        grid.innerHTML = "";
+        
+        for (const key in syllabus) {
+            const item = syllabus[key];
+            const saved = localStorage.getItem(`status-${key}`);
+            
+            let statusBadge = `<span class="menu-status-badge status-pending">Pendiente</span>`;
+            
+            if (saved) {
+                const [correct, total] = saved.split('/').map(Number);
+                const pct = correct / total;
+                let label = "Aprendiz 📚";
+                let cssClass = "status-learner";
+                
+                if (pct === 1) { label = "Maestro 👑"; cssClass = "status-master"; }
+                else if (pct >= 0.7) { label = "Experto ⭐"; cssClass = "status-expert"; }
+                
+                statusBadge = `<span class="menu-status-badge ${cssClass}">${label} (${correct}/${total})</span>`;
+            }
+
+            const btn = document.createElement('div');
+            btn.className = 'menu-btn';
+            btn.onclick = () => startTopic(key);
+            const qCount = item.questions.length;
+            
+            btn.innerHTML = `
+                <div class="menu-header">
+                    <span style="color:#004d40; font-size:1.1em;">${item.title}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:5px;">
+                    <span style="font-size:0.85em; color:#546e7a;">📝 ${qCount} preguntas</span>
+                    ${statusBadge}
+                </div>
+            `;
+            grid.appendChild(btn);
+        }
+    }
+
+    function startTopic(key) {
+        currentTopicKey = key;
+        currentQIndex = 0;
+        score = 0;
+        document.getElementById('main-menu').style.display = 'none';
+        document.getElementById('game-interface').style.display = 'block';
+        document.getElementById('current-topic-title').innerText = syllabus[key].title;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const topic = syllabus[currentTopicKey];
+        const q = topic.questions[currentQIndex];
+
+        // Reset UI
+        document.getElementById('recall-input').value = "";
+        document.getElementById('recall-input').readOnly = false;
+        document.getElementById('recall-input').style.backgroundColor = "white";
+        document.getElementById('btn-reveal').style.display = "block";
+        document.getElementById('options-grid').style.display = "none";
+        document.getElementById('explanation-box').style.display = "none";
+
+        // Update Content
+        document.getElementById('q-counter').innerText = `${currentQIndex + 1}/${topic.questions.length}`;
+        document.getElementById('q-text').innerText = q.q;
+        
+        const pct = (currentQIndex / topic.questions.length) * 100;
+        document.getElementById('progress-bar').style.width = `${pct}%`;
+
+        // Render Options (Hidden initially)
+        const optGrid = document.getElementById('options-grid');
+        optGrid.innerHTML = "";
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerText = opt;
+            btn.onclick = () => handleAnswer(btn, i);
+            optGrid.appendChild(btn);
+        });
+    }
+
+    function revealOptions() {
+        document.getElementById('recall-input').readOnly = true;
+        document.getElementById('recall-input').style.backgroundColor = "#f5f5f5";
+        document.getElementById('btn-reveal').style.display = "none";
+        document.getElementById('options-grid').style.display = "grid";
+    }
+
+    function handleAnswer(btn, idx) {
+        const q = syllabus[currentTopicKey].questions[currentQIndex];
+        const btns = document.querySelectorAll('.opt-btn');
+        btns.forEach(b => b.disabled = true);
+
+        if (idx === q.correct) {
+            btn.classList.add('correct');
+            score++;
+        } else {
+            btn.classList.add('incorrect');
+            btns[q.correct].classList.add('correct');
+        }
+
+        document.getElementById('explanation-box').style.display = "block";
+        document.getElementById('correct-answer-text').innerText = q.options[q.correct];
+        document.getElementById('book-text').innerHTML = q.text;
+    }
+
+    function nextQuestion() {
+        const topic = syllabus[currentTopicKey];
+        currentQIndex++;
+        if (currentQIndex < topic.questions.length) {
+            loadQuestion();
+        } else {
+            finishTopic();
+        }
+    }
+
+    function finishTopic() {
+        document.getElementById('game-interface').style.display = 'none';
+        document.getElementById('result-modal').style.display = 'block';
+        
+        const total = syllabus[currentTopicKey].questions.length;
+        document.getElementById('topic-score').innerText = `${score}/${total}`;
+        
+        let msg = "";
+        if (score === total) msg = "¡Perfecto! 🏆 Dominas este tema.";
+        else if (score > total * 0.7) msg = "¡Muy bien! 👍 Casi perfecto.";
+        else msg = "Repasa un poco más 📚";
+        document.getElementById('feedback-msg').innerText = msg;
+
+        // Guardar progreso
+        localStorage.setItem(`status-${currentTopicKey}`, `${score}/${total}`);
+    }
+
+    function showMenu() {
+        document.getElementById('result-modal').style.display = 'none';
+        document.getElementById('main-menu').style.display = 'block';
+        init(); 
+    }
+
+    function resetAll() {
+        if(confirm("¿Seguro que quieres borrar todo el progreso?")) {
+            localStorage.clear();
+            init();
+        }
+    }
+
+    // Arrancar
+    init();
+
+</script>
+
+</body>
+</html>
